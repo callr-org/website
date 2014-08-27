@@ -1,3 +1,5 @@
+captureOutput <- capture.output
+
 # From R.utils 1.33.0
 mprint <- function(..., appendLF=FALSE) {
   bfr <- captureOutput(print(...), envir=parent.frame())
