@@ -1,44 +1,87 @@
-############################################################################
-# Usage:
-#  # Install from CRAN and Bioconductor
-#  source('http://aroma-project.org/R/install#R.rsp')
-#  source('http://aroma-project.org/R/install#aroma.affymetrix')
-#  
-#  # Install from GitHub
-#  source('http://aroma-project.org/R/install#rstudio/rmarkdown')
-#  
-#  # Install from URL
-#  source('http://aroma-project.org/R/install#http://compbio.med.harvard.edu/Supplements/ChIP-seq/spp_1.11.tar.gz')
-############################################################################
 
 local({
 
-# Debug?
-if (getOption("install.debug", FALSE)) {
-  mout <- function(..., sep="", collapse="\n", appendLF=FALSE) {
-    msg <- paste(..., sep=sep, collapse=collapse)
-    message(msg, appendLF=appendLF)
+# From R.utils 1.33.0
+mprint <- function(..., appendLF=FALSE) {
+  bfr <- captureOutput(print(...), envir=parent.frame())
+  bfr <- paste(c(bfr, ""), collapse="\n")
+  message(bfr, appendLF=appendLF)
+}
+
+mcat <- function(..., appendLF=FALSE) {
+  bfr <- captureOutput(cat(...), envir=parent.frame())
+  bfr <- paste(c(bfr, ""), collapse="\n")
+  message(bfr, appendLF=appendLF)
+}
+
+mstr <- function(..., appendLF=FALSE) {
+  bfr <- captureOutput(str(...), envir=parent.frame())
+  bfr <- paste(c(bfr, ""), collapse="\n")
+  message(bfr, appendLF=appendLF)
+}
+
+mprintf <- function(..., appendLF=FALSE) {
+  bfr <- sprintf(...)
+  message(bfr, appendLF=appendLF)
+}
+
+# Create debug output functions
+for (mname in c("mprint", "mcat", "mstr", "mprintf")) {
+  dname <- sub("m", "d", mname, fixed=TRUE)
+  if (getOption("install.debug", FALSE)) {
+    assign(dname, get(mname, mode="function"))
+  } else {
+    # No debug output
+    assign(dname, function(...) {})
   }
-} else {
-  mout <- function(...) {}
 }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# From R.utils 1.33.0
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+findSourceTraceback <- function(...) {
+  # Identify the environment/frame of interest by making sure
+  # it at least contains all the arguments of source().
+  argsToFind <- names(formals(base::source))
 
-mprintf <- function(...) {
-  mout(sprintf(...))
-}
+  # Scan the call frames/environments backwards...
+  srcfileList <- list()
+  for (ff in sys.nframe():0) {
+    env <- sys.frame(ff)
 
-mcat <- function(...) {
-  mout(capture.output(cat(...)), appendLF=TRUE)
-}
+    # Does the environment look like a source() environment?
+    exist <- sapply(argsToFind, FUN=exists, envir=env, inherits=FALSE)
+    if (!all(exist)) {
+      # Nope, then skip to the next one
+      next
+    }
+    # Identify the source file
+    srcfile <- get("srcfile", envir=env, inherits=FALSE)
+    if (!is.null(srcfile)) {
+      if (!is.function(srcfile)) {
+        srcfileList <- c(srcfileList, list(srcfile))
+      }
+    }
+  } # for (ff ...)
 
-mprint <- function(...) {
-  mout(capture.output(print(...)), appendLF=TRUE)
-}
+  # Extract the pathnames to the files called
+  pathnames <- sapply(srcfileList, FUN=function(srcfile) {
+    if (inherits(srcfile, "srcfile")) {
+      pathname <- srcfile$filename
+    } else if (is.environment(srcfile)) {
+      pathname <- srcfile$filename
+    } else if (is.character(srcfile)) {
+      # Occurs with source(..., keep.source=FALSE)
+      pathname <- srcfile
+    } else {
+      pathname <- NA_character_
+      warning("Unknown class of 'srcfile': ", class(srcfile)[1L])
+    }
+    pathname
+  })
+  names(srcfileList) <- pathnames
 
-mstr <- function(...) {
-  mout(capture.output(str(...)), appendLF=TRUE)
-}
-
+  srcfileList
+} # findSourceTraceback()
 installer <- function(pkgs=NULL, ...) {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Local functions
@@ -62,8 +105,8 @@ installer <- function(pkgs=NULL, ...) {
 
 
   # DEBUG
-  mcat("Argument 'pkgs':\n")
-  mprint(pkgs)
+  dcat("Argument 'pkgs':\n")
+  dprint(pkgs)
 
   repos <- getOption("repos")
 
@@ -83,8 +126,8 @@ installer <- function(pkgs=NULL, ...) {
   on.exit(options(oopts))
 
   # DEBUG
-  mcat("Repositories:\n")
-  mprint(repos)
+  dcat("Repositories:\n")
+  dprint(repos)
 
   # Record package state before
   pkgs0 <- installed.packages()[,"Version"]
@@ -114,8 +157,8 @@ installer <- function(pkgs=NULL, ...) {
   pkgsT <- subset(pkgs, !isInstalled | force)
 
   # DEBUG
-  mcat("Packages to install:\n")
-  mprint(pkgsT)
+  dcat("Packages to install:\n")
+  dprint(pkgsT)
 
   warns <- list()
 
@@ -139,7 +182,7 @@ installer <- function(pkgs=NULL, ...) {
           install.packages(pkg, dependencies=deps, quiet=quiet, ...)
         })
       }
-    }) 
+    })
   }
 
 
@@ -204,7 +247,7 @@ installer <- function(pkgs=NULL, ...) {
           res <- c(res, resT)
           pkgsDepsDone <- c(pkgsDepsDone, names)
           names <- setdiff(resT, pkgsDepsDone)
-        }        
+        }
       } else {
         suppressWarnings({
           res <- unlist(lapply(names, FUN=function(pkg) {
@@ -329,55 +372,6 @@ installer <- function(pkgs=NULL, ...) {
     message(msg)
   }
 } # installer()
-
-
-# Copied from the R.utils package
-findSourceTraceback <- function(...) {
-  # Identify the environment/frame of interest by making sure
-  # it at least contains all the arguments of source().
-  argsToFind <- names(formals(base::source))
-
-  # Scan the call frames/environments backwards...
-  srcfileList <- list()
-  for (ff in sys.nframe():0) {
-    env <- sys.frame(ff)
-
-    # Does the environment look like a source() environment?
-    exist <- sapply(argsToFind, FUN=exists, envir=env, inherits=FALSE)
-    if (!all(exist)) {
-      # Nope, then skip to the next one
-      next
-    }
-    # Identify the source file
-    srcfile <- get("srcfile", envir=env, inherits=FALSE)
-    if (!is.null(srcfile)) {
-      if (!is.function(srcfile)) {
-        srcfileList <- c(srcfileList, list(srcfile))
-      }
-    }
-  } # for (ff ...)
-
-  # Extract the pathnames to the files called
-  pathnames <- sapply(srcfileList, FUN=function(srcfile) {
-    if (inherits(srcfile, "srcfile")) {
-      pathname <- srcfile$filename
-    } else if (is.environment(srcfile)) {
-      pathname <- srcfile$filename
-    } else if (is.character(srcfile)) {
-      # Occurs with source(..., keep.source=FALSE)
-      pathname <- srcfile
-    } else {
-      pathname <- NA_character_
-      warning("Unknown class of 'srcfile': ", class(srcfile)[1L])
-    }
-    pathname
-  })
-  names(srcfileList) <- pathnames
-
-  srcfileList
-} # findSourceTraceback()
-
-
 findPackages <- function(cmd=NULL) {
   trim <- function(x) gsub("(^[ ]|[ ]$)", "", x)
 
@@ -450,27 +444,3 @@ if (nrow(pkgs) == 0L) {
 }
 
 }) # local()
-
-
-############################################################################
-# HISTORY:
-# 2014-06-11
-# o Now 'SuggestsNote' entries without 'Recommends:' are ignored.
-# 2014-06-07
-# o Now library() commands are added to the command history.
-# o CRAN does not accept DESCRIPTION field 'Recommends'.  Replacing with
-#   'SuggestsNote', cf. src/library/tools/R/QC.R.
-# 2014-06-06
-# o Added support for installing from GitHub using 'devtools'.
-# 2014-05-28
-# o Now installing "Recommends" packages of all recursively dependend
-#   packages.  To disable this do install#aroma.affymetrix[r].
-# 2014-05-27
-# o Added support for package flags, e.g. install#R.rsp[S].
-# o Now suppressing all warnings while installing/updating.
-# 2014-04-29
-# o Now reporting summary of package updates.
-# o BUG FIX: installer(..., update=TRUE) would not update package.
-# 2014-04-21
-# o Created by Henrik Bengtsson.
-############################################################################

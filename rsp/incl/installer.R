@@ -21,8 +21,8 @@ installer <- function(pkgs=NULL, ...) {
 
 
   # DEBUG
-  mcat("Argument 'pkgs':\n")
-  mprint(pkgs)
+  dcat("Argument 'pkgs':\n")
+  dprint(pkgs)
 
   repos <- getOption("repos")
 
@@ -42,8 +42,8 @@ installer <- function(pkgs=NULL, ...) {
   on.exit(options(oopts))
 
   # DEBUG
-  mcat("Repositories:\n")
-  mprint(repos)
+  dcat("Repositories:\n")
+  dprint(repos)
 
   # Record package state before
   pkgs0 <- installed.packages()[,"Version"]
@@ -73,8 +73,8 @@ installer <- function(pkgs=NULL, ...) {
   pkgsT <- subset(pkgs, !isInstalled | force)
 
   # DEBUG
-  mcat("Packages to install:\n")
-  mprint(pkgsT)
+  dcat("Packages to install:\n")
+  dprint(pkgsT)
 
   warns <- list()
 
@@ -190,7 +190,7 @@ installer <- function(pkgs=NULL, ...) {
     if (length(recs) > 0L) {
       recs <- recs[!isInstalled(recs)]
       if (length(recs) > 0L) {
-        mprintf("Installing packages (according to DESCRIPTION field '%s'): %s\n", field, paste(recs, collapse=", "))
+        message(sprintf("Installing packages (according to DESCRIPTION field '%s'): %s", field, paste(recs, collapse=", ")))
         for (rec in recs) {
           try(install.packages(rec, quiet=quiet, ...))
         }
@@ -256,7 +256,8 @@ installer <- function(pkgs=NULL, ...) {
       wmsgs <- sapply(warns, FUN=function(w) w$message)
       wmsgs <- unique(wmsgs)
       wmsgs <- paste(sprintf(" (W%d) %s", seq_along(wmsgs), wmsgs), collapse="\n")
-      mprintf("\nThe reason may be explained by one of the following warnings caught:\n\n%s\n---\n", wmsgs)
+      msg <- sprintf("\nThe reason may be explained by one of the following warnings caught:\n\n%s\n---\n", wmsgs)
+      message(msg)
     }
   } else {
     # Add library() commands to the R command line history

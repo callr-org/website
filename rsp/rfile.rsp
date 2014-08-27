@@ -1,0 +1,41 @@
+<%@string urlroot="http://aroma-project.org/R"%>
+<%@string url="${urlroot}/install"%>
+
+local({
+
+<%@include file="incl/mout.R"%>
+<%@include file="incl/findSourceTraceback.R"%>
+<%@include file="incl/findURIs.R"%>
+<%@include file="incl/local_rfile.R.rsp"%>
+
+uris <- findURIs()
+nuris <- length(uris)
+if (nuris == 0L) {
+  # Display usage
+  msg <- "RSP compiler v1.01 by Henrik Bengtsson"
+  msg <- c(msg, "")
+  msg <- c(msg, "Usage:")
+  msg <- c(msg, "  source('http://aroma-project.org/R/rfile#<uri>')")
+  msg <- c(msg, "")
+  msg <- c(msg, "Example:")
+  msg <- c(msg, "  source('http://aroma-project.org/R/rfile#report.md.rsp')")
+  message(paste(msg, collapse="\n"))
+} else {
+  # Install package
+  if (nuris == 1L) {
+    msg <- "Compiling RSP document:"
+  } else {
+    msg <- "Compiling RSP documents:"
+  }
+  message(msg, " ", paste(sQuote(uris), collapse=", "))
+  local_rfile(uris)
+}
+
+}) # local()
+
+
+############################################################################
+# HISTORY:
+# 2014-06-16
+# o Created from 'install'.
+############################################################################

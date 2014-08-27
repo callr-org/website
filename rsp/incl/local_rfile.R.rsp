@@ -1,0 +1,18 @@
+<%@string Rrsp_install="${urlroot}/install" default="http://callr.org/install"%>
+
+local_rfile <- function(uris) {
+  isInstalled <- function(pkgs) {
+    unlist(sapply(pkgs, FUN=function(pkg) {
+      nzchar(suppressWarnings(system.file(package=pkg)))
+    }))
+  } # isInstalled()
+
+  if (!isInstalled("R.rsp")) {
+    source("<%@string name="Rrsp_install"%>#R.rsp")
+  }
+
+  for (uri in uris) {
+    pp <- R.rsp::rfile(uri)
+    mprint(pp)
+  }
+} # local_rfile()
