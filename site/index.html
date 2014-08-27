@@ -203,15 +203,19 @@ hr {
 <body>
 <h1>callr.org</h1>
 
-<h2>Install CRAN and Bioconductor packages</h2>
+<h2>Installing packages</h2>
 
-<pre><code class="r">source(&#39;http://callr.org/install#aroma.affymetrix&#39;)
+<pre><code class="r"># From CRAN
+source(&#39;http://callr.org/install#knitr&#39;)
+
+# From Bioconductor
+source(&#39;http://callr.org/install#limma&#39;)
+
+# From GitHub
+source(&#39;http://callr.org/install#rstudio/shiny&#39;)
 </code></pre>
 
-<h2>Build RSP reports</h2>
-
-<pre><code class="r">source(&#39;http://callr.org/rfile#report.md.rsp&#39;)
-</code></pre>
+<p>If a requested package is  already installed and up-to-date, it will not be reinstalled.  The above always updates all your installed packages.</p>
 
 </body>
 
