@@ -1,38 +1,64 @@
-############################################################################
-# Usage:
-#  source('http://aroma-project.org/R/rfile#<file>')
-#  source('http://aroma-project.org/R/rfile#<url>')
-############################################################################
 
 local({
-mprint <- function(..., envir=parent.frame()) {
-  bfr <- capture.output(print(...))
-  bfr <- paste(bfr, collapse="\n");
-  message(bfr);
-} # mprint()
 
-# Copied from the R.utils package
+# From R.utils 1.33.0
+mprint <- function(..., appendLF=FALSE) {
+  bfr <- captureOutput(print(...), envir=parent.frame())
+  bfr <- paste(c(bfr, ""), collapse="\n")
+  message(bfr, appendLF=appendLF)
+}
+
+mcat <- function(..., appendLF=FALSE) {
+  bfr <- captureOutput(cat(...), envir=parent.frame())
+  bfr <- paste(c(bfr, ""), collapse="\n")
+  message(bfr, appendLF=appendLF)
+}
+
+mstr <- function(..., appendLF=FALSE) {
+  bfr <- captureOutput(str(...), envir=parent.frame())
+  bfr <- paste(c(bfr, ""), collapse="\n")
+  message(bfr, appendLF=appendLF)
+}
+
+mprintf <- function(..., appendLF=FALSE) {
+  bfr <- sprintf(...)
+  message(bfr, appendLF=appendLF)
+}
+
+# Create debug output functions
+for (mname in c("mprint", "mcat", "mstr", "mprintf")) {
+  dname <- sub("m", "d", mname, fixed=TRUE)
+  if (getOption("install.debug", FALSE)) {
+    assign(dname, get(mname, mode="function"))
+  } else {
+    # No debug output
+    assign(dname, function(...) {})
+  }
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# From R.utils 1.33.0
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 findSourceTraceback <- function(...) {
   # Identify the environment/frame of interest by making sure
   # it at least contains all the arguments of source().
-  argsToFind <- names(formals(base::source));
+  argsToFind <- names(formals(base::source))
 
   # Scan the call frames/environments backwards...
-  srcfileList <- list();
+  srcfileList <- list()
   for (ff in sys.nframe():0) {
-    env <- sys.frame(ff);
+    env <- sys.frame(ff)
 
     # Does the environment look like a source() environment?
-    exist <- sapply(argsToFind, FUN=exists, envir=env, inherits=FALSE);
+    exist <- sapply(argsToFind, FUN=exists, envir=env, inherits=FALSE)
     if (!all(exist)) {
       # Nope, then skip to the next one
-      next;
+      next
     }
     # Identify the source file
-    srcfile <- get("srcfile", envir=env, inherits=FALSE);
+    srcfile <- get("srcfile", envir=env, inherits=FALSE)
     if (!is.null(srcfile)) {
       if (!is.function(srcfile)) {
-        srcfileList <- c(srcfileList, list(srcfile));
+        srcfileList <- c(srcfileList, list(srcfile))
       }
     }
   } # for (ff ...)
@@ -40,23 +66,22 @@ findSourceTraceback <- function(...) {
   # Extract the pathnames to the files called
   pathnames <- sapply(srcfileList, FUN=function(srcfile) {
     if (inherits(srcfile, "srcfile")) {
-      pathname <- srcfile$filename;
+      pathname <- srcfile$filename
     } else if (is.environment(srcfile)) {
-      pathname <- srcfile$filename;
+      pathname <- srcfile$filename
     } else if (is.character(srcfile)) {
       # Occurs with source(..., keep.source=FALSE)
-      pathname <- srcfile;
+      pathname <- srcfile
     } else {
-      pathname <- NA_character_;
-      warning("Unknown class of 'srcfile': ", class(srcfile)[1L]);
+      pathname <- NA_character_
+      warning("Unknown class of 'srcfile': ", class(srcfile)[1L])
     }
-    pathname;
-  });
-  names(srcfileList) <- pathnames;
+    pathname
+  })
+  names(srcfileList) <- pathnames
 
-  srcfileList;
+  srcfileList
 } # findSourceTraceback()
-
 gist_to_url <- function(url) {
   pattern <- "^gist://(.*)/(.*)/(.*)"
   if (regexpr(pattern, url) == -1) return(url)
@@ -104,14 +129,14 @@ local_rfile <- function(uris) {
   } # isInstalled()
 
   if (!isInstalled("R.rsp")) {
-    source("http://aroma-project.org/R/install#R.rsp")
+    source("http://callr.org/install#R.rsp")
   }
 
   for (uri in uris) {
     pp <- R.rsp::rfile(uri)
     mprint(pp)
   }
-}
+} # local_rfile()
 
 uris <- findURIs()
 nuris <- length(uris)
@@ -137,10 +162,3 @@ if (nuris == 0L) {
 }
 
 }) # local()
-
-
-############################################################################
-# HISTORY:
-# 2014-06-16
-# o Created from 'install'.
-############################################################################

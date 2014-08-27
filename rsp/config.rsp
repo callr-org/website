@@ -1,0 +1,2 @@
+<%@string urlroot="http://callr.org"%>
+<%@string url="${urlroot}/${script}"%>

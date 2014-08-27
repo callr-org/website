@@ -1,6 +1,7 @@
 library("R.rsp")
 
-script <- rfile("rsp/install.rsp", workdir="site")
-print(script)
-
-
+for (script in c("install", "rfile")) {
+  filename <- sprintf("%s.rsp", script)
+  pathname <- rfile(filename, path="rsp/", workdir="site")
+  print(pathname)
+}

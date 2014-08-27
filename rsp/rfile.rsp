@@ -1,5 +1,5 @@
-<%@string urlroot="http://aroma-project.org/R"%>
-<%@string url="${urlroot}/install"%>
+<%@string script="rfile"%>
+<%@include file="config.rsp"%>
 
 local({
 
@@ -32,10 +32,3 @@ if (nuris == 0L) {
 }
 
 }) # local()
-
-
-############################################################################
-# HISTORY:
-# 2014-06-16
-# o Created from 'install'.
-############################################################################

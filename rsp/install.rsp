@@ -1,5 +1,5 @@
-<%@string urlroot="http://aroma-project.org/R"%>
-<%@string url="${urlroot}/install"%>
+<%@string script="install"%>
+<%@include file="config.rsp"%>
 
 local({
 
