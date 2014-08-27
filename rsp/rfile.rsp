@@ -15,10 +15,10 @@ if (nuris == 0L) {
   msg <- "RSP compiler v1.01 by Henrik Bengtsson"
   msg <- c(msg, "")
   msg <- c(msg, "Usage:")
-  msg <- c(msg, "  source('http://aroma-project.org/R/rfile#<uri>')")
+  msg <- c(msg, "  source('<%@string name="url"%>#<uri>')")
   msg <- c(msg, "")
   msg <- c(msg, "Example:")
-  msg <- c(msg, "  source('http://aroma-project.org/R/rfile#report.md.rsp')")
+  msg <- c(msg, "  source('<%@string name="url"%>#report.md.rsp')")
   message(paste(msg, collapse="\n"))
 } else {
   # Install package
