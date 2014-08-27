@@ -14,5 +14,3 @@ source('http://callr.org/install#rstudio/shiny')
 ```
 
 All dependent packages will be installed.  If a requested package is already installed and up-to-date, it will not be reinstalled.  All installed packages will be updated.
-
-
