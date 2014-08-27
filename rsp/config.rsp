@@ -1,2 +1,3 @@
 <%@string urlroot="http://callr.org"%>
+<%@string google_tracking_id="UA-54228632-1"%>
 <%@string url="${urlroot}/${script}"%>

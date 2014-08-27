@@ -1,4 +1,4 @@
-# callr.org
+<%@include file="incl/header.rsp"%>
 
 ## Building dynamic reports
 
@@ -53,3 +53,6 @@ source('http://callr.org/rfile#https://raw.github.com/HenrikBengtsson/R.rsp/mast
 ```
 
 All required packages will automatically be install, if missing.
+
+
+<%@include file="incl/footer.rsp"%>
