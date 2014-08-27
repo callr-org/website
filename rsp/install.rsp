@@ -1,0 +1,34 @@
+<%@string urlroot="http://aroma-project.org/R"%>
+<%@string url="${urlroot}/install"%>
+
+local({
+
+<%@include file="incl/mout.R"%>
+<%@include file="incl/findSourceTraceback.R"%>
+<%@include file="incl/installer.R"%>
+<%@include file="incl/findPackages.R"%>
+
+pkgs <- findPackages()
+
+if (nrow(pkgs) == 0L) {
+  # Display usage
+  msg <- "R package installer v1.01 by Henrik Bengtsson"
+  msg <- c(msg, "")
+  msg <- c(msg, "Usage:")
+  msg <- c(msg, "  source('<%@string name="url"%>#<package>')")
+  msg <- c(msg, "")
+  msg <- c(msg, "Example:")
+  msg <- c(msg, "  source('<%@string name="url"%>#aroma.affymetrix')")
+  message(paste(msg, collapse="\n"))
+} else {
+  # Install package
+  if (nrow(pkgs) == 1L) {
+    msg <- "Installing/updating package:"
+  } else {
+    msg <- "Installing/updating packages:"
+  }
+  message(msg, " ", paste(sQuote(pkgs$name), collapse=", "))
+  installer(pkgs)
+}
+
+}) # local()
