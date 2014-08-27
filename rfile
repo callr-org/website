@@ -1,0 +1,146 @@
+############################################################################
+# Usage:
+#  source('http://aroma-project.org/R/rfile#<file>')
+#  source('http://aroma-project.org/R/rfile#<url>')
+############################################################################
+
+local({
+mprint <- function(..., envir=parent.frame()) {
+  bfr <- capture.output(print(...))
+  bfr <- paste(bfr, collapse="\n");
+  message(bfr);
+} # mprint()
+
+# Copied from the R.utils package
+findSourceTraceback <- function(...) {
+  # Identify the environment/frame of interest by making sure
+  # it at least contains all the arguments of source().
+  argsToFind <- names(formals(base::source));
+
+  # Scan the call frames/environments backwards...
+  srcfileList <- list();
+  for (ff in sys.nframe():0) {
+    env <- sys.frame(ff);
+
+    # Does the environment look like a source() environment?
+    exist <- sapply(argsToFind, FUN=exists, envir=env, inherits=FALSE);
+    if (!all(exist)) {
+      # Nope, then skip to the next one
+      next;
+    }
+    # Identify the source file
+    srcfile <- get("srcfile", envir=env, inherits=FALSE);
+    if (!is.null(srcfile)) {
+      if (!is.function(srcfile)) {
+        srcfileList <- c(srcfileList, list(srcfile));
+      }
+    }
+  } # for (ff ...)
+
+  # Extract the pathnames to the files called
+  pathnames <- sapply(srcfileList, FUN=function(srcfile) {
+    if (inherits(srcfile, "srcfile")) {
+      pathname <- srcfile$filename;
+    } else if (is.environment(srcfile)) {
+      pathname <- srcfile$filename;
+    } else if (is.character(srcfile)) {
+      # Occurs with source(..., keep.source=FALSE)
+      pathname <- srcfile;
+    } else {
+      pathname <- NA_character_;
+      warning("Unknown class of 'srcfile': ", class(srcfile)[1L]);
+    }
+    pathname;
+  });
+  names(srcfileList) <- pathnames;
+
+  srcfileList;
+} # findSourceTraceback()
+
+gist_to_url <- function(url) {
+  pattern <- "^gist://(.*)/(.*)/(.*)"
+  if (regexpr(pattern, url) == -1) return(url)
+  gsub(pattern, "https://gist.githubusercontent.com/\\1/\\2/raw/\\3", url)
+}
+
+url_to_gist <- function(url) {
+  pattern <- "^https://gist.githubusercontent.com/(.*)/(.*)/raw/(.*)"
+  if (regexpr(pattern, url) == -1) return(url)
+  gsub(pattern, "gist://\\1/\\2/\\3", url)
+}
+
+findURIs <- function(url=NULL) {
+  trim <- function(x) gsub("(^[ ]|[ ]$)", "", x)
+
+  if (is.null(url)) {
+    urls <- names(findSourceTraceback())
+    pattern <- ".*/rfile#"
+    urls <- grep(pattern, urls, value=TRUE)
+    urls <- gsub(pattern, "", urls)
+    url <- urls[1]
+  }
+  if (is.na(url)) {
+    # Local testing?
+    url <- getOption("rfile#")
+    if (is.null(url)) return(data.frame(name=character(0L), flags=c()))
+    print(url)
+  }
+
+  url <- URLdecode(url)
+
+  uris <- unlist(strsplit(url, split=",", fixed=TRUE))
+
+  # Translater gist:// URIs
+  uris <- sapply(uris, FUN=gist_to_url)
+
+  uris
+} # findURIs()
+
+local_rfile <- function(uris) {
+  isInstalled <- function(pkgs) {
+    unlist(sapply(pkgs, FUN=function(pkg) {
+      nzchar(suppressWarnings(system.file(package=pkg)))
+    }))
+  } # isInstalled()
+
+  if (!isInstalled("R.rsp")) {
+    source("http://aroma-project.org/R/install#R.rsp")
+  }
+
+  for (uri in uris) {
+    pp <- R.rsp::rfile(uri)
+    mprint(pp)
+  }
+}
+
+uris <- findURIs()
+nuris <- length(uris)
+if (nuris == 0L) {
+  # Display usage
+  msg <- "RSP compiler v1.01 by Henrik Bengtsson"
+  msg <- c(msg, "")
+  msg <- c(msg, "Usage:")
+  msg <- c(msg, "  source('http://aroma-project.org/R/rfile#<uri>')")
+  msg <- c(msg, "")
+  msg <- c(msg, "Example:")
+  msg <- c(msg, "  source('http://aroma-project.org/R/rfile#report.md.rsp')")
+  message(paste(msg, collapse="\n"))
+} else {
+  # Install package
+  if (nuris == 1L) {
+    msg <- "Compiling RSP document:"
+  } else {
+    msg <- "Compiling RSP documents:"
+  }
+  message(msg, " ", paste(sQuote(uris), collapse=", "))
+  local_rfile(uris)
+}
+
+}) # local()
+
+
+############################################################################
+# HISTORY:
+# 2014-06-16
+# o Created from 'install'.
+############################################################################
