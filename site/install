@@ -1,32 +1,97 @@
+######################################################################
+# This script is part of the http://callr.org suite.
+# It was dynamically generated from a set of RSP templates,
+# which are available at https://github.com/callr-org/.
+#
+# License: GPL (>= 2.1)
+# Copyright: Henrik Bengtsson
+######################################################################
+
+
 
 local({
 
-captureOutput <- capture.output
-
-# From R.utils 1.33.0
-mprint <- function(..., appendLF=FALSE) {
-  bfr <- captureOutput(print(...), envir=parent.frame())
-  bfr <- paste(c(bfr, ""), collapse="\n")
-  message(bfr, appendLF=appendLF)
+trim <- function (object, ...) 
+{
+    s <- sub("^[\t\n\f\r ]*", "", as.character(object))
+    s <- sub("[\t\n\f\r ]*$", "", s)
+    s
 }
 
-mcat <- function(..., appendLF=FALSE) {
-  bfr <- captureOutput(cat(...), envir=parent.frame())
-  bfr <- paste(c(bfr, ""), collapse="\n")
-  message(bfr, appendLF=appendLF)
+
+
+isPackageInstalled <- function (package, ...) 
+{
+    suppressWarnings({
+        paths <- sapply(package, FUN = function(p) system.file(package = p))
+    })
+    (paths != "")
 }
 
-mstr <- function(..., appendLF=FALSE) {
-  bfr <- captureOutput(str(...), envir=parent.frame())
-  bfr <- paste(c(bfr, ""), collapse="\n")
-  message(bfr, appendLF=appendLF)
+findSourceTraceback <- function (...) 
+{
+    argsToFind <- names(formals(source))
+    srcfileList <- list()
+    for (ff in sys.nframe():0) {
+        env <- sys.frame(ff)
+        exist <- sapply(argsToFind, FUN = exists, envir = env, 
+            inherits = FALSE)
+        if (!all(exist)) {
+            next
+        }
+        srcfile <- get("srcfile", envir = env, inherits = FALSE)
+        if (!is.null(srcfile)) {
+            if (!is.function(srcfile)) {
+                srcfileList <- c(srcfileList, list(srcfile))
+            }
+        }
+    }
+    pathnames <- sapply(srcfileList, FUN = function(srcfile) {
+        if (inherits(srcfile, "srcfile")) {
+            pathname <- srcfile$filename
+        }
+        else if (is.environment(srcfile)) {
+            pathname <- srcfile$filename
+        }
+        else if (is.character(srcfile)) {
+            pathname <- srcfile
+        }
+        else {
+            pathname <- NA_character_
+            warning("Unknown class of 'srcfile': ", class(srcfile)[1L])
+        }
+        pathname
+    })
+    names(srcfileList) <- pathnames
+    srcfileList
 }
 
-mprintf <- function(..., appendLF=FALSE) {
-  bfr <- sprintf(...)
-  message(bfr, appendLF=appendLF)
-}
 
+captureOutput <- utils::capture.output
+
+mprint <- function (..., appendLF = FALSE) 
+{
+    bfr <- captureOutput(print(...), envir = parent.frame())
+    bfr <- paste(c(bfr, ""), collapse = "\n")
+    message(bfr, appendLF = appendLF)
+}
+mcat <- function (..., appendLF = FALSE) 
+{
+    bfr <- captureOutput(cat(...), envir = parent.frame())
+    bfr <- paste(c(bfr, ""), collapse = "\n")
+    message(bfr, appendLF = appendLF)
+}
+mstr <- function (..., appendLF = FALSE) 
+{
+    bfr <- captureOutput(str(...), envir = parent.frame())
+    bfr <- paste(c(bfr, ""), collapse = "\n")
+    message(bfr, appendLF = appendLF)
+}
+mprintf <- function (..., appendLF = FALSE) 
+{
+    bfr <- sprintf(...)
+    message(bfr, appendLF = appendLF)
+}
 # Create debug output functions
 for (mname in c("mprint", "mcat", "mstr", "mprintf")) {
   dname <- sub("m", "d", mname, fixed=TRUE)
@@ -37,62 +102,18 @@ for (mname in c("mprint", "mcat", "mstr", "mprintf")) {
     assign(dname, function(...) {})
   }
 }
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# From R.utils 1.33.0
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-findSourceTraceback <- function(...) {
-  # Identify the environment/frame of interest by making sure
-  # it at least contains all the arguments of source().
-  argsToFind <- names(formals(base::source))
 
-  # Scan the call frames/environments backwards...
-  srcfileList <- list()
-  for (ff in sys.nframe():0) {
-    env <- sys.frame(ff)
-
-    # Does the environment look like a source() environment?
-    exist <- sapply(argsToFind, FUN=exists, envir=env, inherits=FALSE)
-    if (!all(exist)) {
-      # Nope, then skip to the next one
-      next
-    }
-    # Identify the source file
-    srcfile <- get("srcfile", envir=env, inherits=FALSE)
-    if (!is.null(srcfile)) {
-      if (!is.function(srcfile)) {
-        srcfileList <- c(srcfileList, list(srcfile))
-      }
-    }
-  } # for (ff ...)
-
-  # Extract the pathnames to the files called
-  pathnames <- sapply(srcfileList, FUN=function(srcfile) {
-    if (inherits(srcfile, "srcfile")) {
-      pathname <- srcfile$filename
-    } else if (is.environment(srcfile)) {
-      pathname <- srcfile$filename
-    } else if (is.character(srcfile)) {
-      # Occurs with source(..., keep.source=FALSE)
-      pathname <- srcfile
-    } else {
-      pathname <- NA_character_
-      warning("Unknown class of 'srcfile': ", class(srcfile)[1L])
-    }
-    pathname
-  })
-  names(srcfileList) <- pathnames
-
-  srcfileList
-} # findSourceTraceback()
 installer <- function(pkgs=NULL, ...) {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Local functions
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  isInstalled <- function(pkgs) {
-     unlist(sapply(pkgs, FUN=function(pkg) {
-       nzchar(suppressWarnings(system.file(package=pkg)))
-     }))
-  }
+  # Don't assume 'utils' is attached
+  install.packages <- utils::install.packages
+  installed.packages <- utils::installed.packages
+  update.packages <- utils::update.packages
+  packageDescription <-  utils::packageDescription
+  packageVersion <-  utils::packageVersion
+  savehistory <- utils::savehistory
 
   knownRepos <- function() {
     p <- file.path(Sys.getenv("HOME"), ".R", "repositories")
@@ -143,7 +164,7 @@ installer <- function(pkgs=NULL, ...) {
 
   quiet <- any(sapply(pkgs$flags, FUN=function(x) is.element("Q", x)))
 
-  pkgs$isInstalled <- isInstalled(pkgs$name)
+  pkgs$isInstalled <- isPackageInstalled(pkgs$name)
 
   pkgs$force <- sapply(pkgs$flags, FUN=function(x) is.element("!", x))
   pkgs$suggests <- sapply(pkgs$flags, FUN=function(x) is.element("S", x))
@@ -195,7 +216,7 @@ installer <- function(pkgs=NULL, ...) {
   if (nrow(pkgsU) > 0L) {
     message("Installing packages from URLs:")
     suppressWarnings({
-      if (!isInstalled("devtools")) {
+      if (!isPackageInstalled("devtools")) {
         install.packages("devtools", quiet=quiet, ...)
       }
       # Install one by one
@@ -215,7 +236,7 @@ installer <- function(pkgs=NULL, ...) {
   if (nrow(pkgsG) > 0L) {
     message("Installing packages from GitHub:")
     suppressWarnings({
-      if (!isInstalled("devtools")) {
+      if (!isPackageInstalled("devtools")) {
         install.packages("devtools", quiet=quiet, ...)
       }
       # Install one by one
@@ -274,7 +295,7 @@ installer <- function(pkgs=NULL, ...) {
     field <- "SuggestsNote"
     recs <- pkgDeps(deps, field=field)
     if (length(recs) > 0L) {
-      recs <- recs[!isInstalled(recs)]
+      recs <- recs[!isPackageInstalled(recs)]
       if (length(recs) > 0L) {
         message(sprintf("Installing packages (according to DESCRIPTION field '%s'): %s", field, paste(recs, collapse=", ")))
         for (rec in recs) {
@@ -375,7 +396,8 @@ installer <- function(pkgs=NULL, ...) {
   }
 } # installer()
 findPackages <- function(cmd=NULL) {
-  trim <- function(x) gsub("(^[ ]|[ ]$)", "", x)
+  # Don't assume 'utils' is attached
+  URLdecode <- utils::URLdecode
 
   if (is.null(cmd)) {
     urls <- names(findSourceTraceback())
@@ -426,7 +448,7 @@ pkgs <- findPackages()
 
 if (nrow(pkgs) == 0L) {
   # Display usage
-  msg <- "R package installer v1.01 by Henrik Bengtsson"
+  msg <- "R package installer v1.0.2 by Henrik Bengtsson"
   msg <- c(msg, "")
   msg <- c(msg, "Usage:")
   msg <- c(msg, "  source('http://callr.org/install#<package>')")

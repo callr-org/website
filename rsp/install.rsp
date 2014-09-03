@@ -1,10 +1,10 @@
 <%@string script="install"%>
 <%@include file="config.rsp"%>
+<%@include file="incl/copyright.R.rsp"%>
 
 local({
 
-<%@include file="incl/mout.R"%>
-<%@include file="incl/findSourceTraceback.R"%>
+<%@include file="incl/utils.R.rsp"%>
 <%@include file="incl/installer.R"%>
 <%@include file="incl/findPackages.R"%>
 
@@ -12,7 +12,7 @@ pkgs <- findPackages()
 
 if (nrow(pkgs) == 0L) {
   # Display usage
-  msg <- "R package installer v1.01 by Henrik Bengtsson"
+  msg <- "R package installer v1.0.2 by Henrik Bengtsson"
   msg <- c(msg, "")
   msg <- c(msg, "Usage:")
   msg <- c(msg, "  source('<%@string name="url"%>#<package>')")

@@ -1,5 +1,6 @@
 findPackages <- function(cmd=NULL) {
-  trim <- function(x) gsub("(^[ ]|[ ]$)", "", x)
+  # Don't assume 'utils' is attached
+  URLdecode <- utils::URLdecode
 
   if (is.null(cmd)) {
     urls <- names(findSourceTraceback())

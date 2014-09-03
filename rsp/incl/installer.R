@@ -2,11 +2,13 @@ installer <- function(pkgs=NULL, ...) {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Local functions
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  isInstalled <- function(pkgs) {
-     unlist(sapply(pkgs, FUN=function(pkg) {
-       nzchar(suppressWarnings(system.file(package=pkg)))
-     }))
-  }
+  # Don't assume 'utils' is attached
+  install.packages <- utils::install.packages
+  installed.packages <- utils::installed.packages
+  update.packages <- utils::update.packages
+  packageDescription <-  utils::packageDescription
+  packageVersion <-  utils::packageVersion
+  savehistory <- utils::savehistory
 
   knownRepos <- function() {
     p <- file.path(Sys.getenv("HOME"), ".R", "repositories")
@@ -57,7 +59,7 @@ installer <- function(pkgs=NULL, ...) {
 
   quiet <- any(sapply(pkgs$flags, FUN=function(x) is.element("Q", x)))
 
-  pkgs$isInstalled <- isInstalled(pkgs$name)
+  pkgs$isInstalled <- isPackageInstalled(pkgs$name)
 
   pkgs$force <- sapply(pkgs$flags, FUN=function(x) is.element("!", x))
   pkgs$suggests <- sapply(pkgs$flags, FUN=function(x) is.element("S", x))
@@ -109,7 +111,7 @@ installer <- function(pkgs=NULL, ...) {
   if (nrow(pkgsU) > 0L) {
     message("Installing packages from URLs:")
     suppressWarnings({
-      if (!isInstalled("devtools")) {
+      if (!isPackageInstalled("devtools")) {
         install.packages("devtools", quiet=quiet, ...)
       }
       # Install one by one
@@ -129,7 +131,7 @@ installer <- function(pkgs=NULL, ...) {
   if (nrow(pkgsG) > 0L) {
     message("Installing packages from GitHub:")
     suppressWarnings({
-      if (!isInstalled("devtools")) {
+      if (!isPackageInstalled("devtools")) {
         install.packages("devtools", quiet=quiet, ...)
       }
       # Install one by one
@@ -188,7 +190,7 @@ installer <- function(pkgs=NULL, ...) {
     field <- "SuggestsNote"
     recs <- pkgDeps(deps, field=field)
     if (length(recs) > 0L) {
-      recs <- recs[!isInstalled(recs)]
+      recs <- recs[!isPackageInstalled(recs)]
       if (length(recs) > 0L) {
         message(sprintf("Installing packages (according to DESCRIPTION field '%s'): %s", field, paste(recs, collapse=", ")))
         for (rec in recs) {

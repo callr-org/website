@@ -1,10 +1,10 @@
 <%@string script="rfile"%>
 <%@include file="config.rsp"%>
+<%@include file="incl/copyright.R.rsp"%>
 
 local({
 
-<%@include file="incl/mout.R"%>
-<%@include file="incl/findSourceTraceback.R"%>
+<%@include file="incl/utils.R.rsp"%>
 <%@include file="incl/findURIs.R"%>
 <%@include file="incl/local_rfile.R.rsp"%>
 
@@ -12,7 +12,7 @@ uris <- findURIs()
 nuris <- length(uris)
 if (nuris == 0L) {
   # Display usage
-  msg <- "RSP compiler v1.01 by Henrik Bengtsson"
+  msg <- "RSP compiler v1.0.2 by Henrik Bengtsson"
   msg <- c(msg, "")
   msg <- c(msg, "Usage:")
   msg <- c(msg, "  source('<%@string name="url"%>#<uri>')")

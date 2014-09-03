@@ -11,7 +11,8 @@ url_to_gist <- function(url) {
 }
 
 findURIs <- function(url=NULL) {
-  trim <- function(x) gsub("(^[ ]|[ ]$)", "", x)
+  # Don't assume 'utils' is attached
+  URLdecode <- utils::URLdecode
 
   if (is.null(url)) {
     urls <- names(findSourceTraceback())
