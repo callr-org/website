@@ -1,9 +1,0 @@
-<%@include file="../config.rsp"%>
-<%@meta title="callR.org"%>
-<%@string bootstrap_url="http://netdna.bootstrapcdn.com/bootstrap/3.2.0"%>
-<%@string jquery_url="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1"%>
-
-# <%@meta name="title"%>
-
-
-

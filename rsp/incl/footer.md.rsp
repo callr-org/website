@@ -1,8 +1,0 @@
---------------------------------------------------------------
-[install](install.html) | [biocLite](biocLite.html) | [rfile](rfile.html)  
-
-<%@include file="GoogleAnalytics.html.rsp"%>
-
-<%
-options("markdown.HTML.template"="rsp/page.html.tmpl")
-%>
