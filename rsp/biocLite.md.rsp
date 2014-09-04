@@ -1,4 +1,4 @@
-<%@include file="incl/header.rsp"%>
+<%@include file="incl/header.md.rsp"%>
 
 ## Installing Bioconductor packages
 
@@ -17,4 +17,4 @@ You can install multiple packages by separating them with commas, e.g.
 source('http://callr.org/biocLite#limma,edgeR')
 ```
 
-<%@include file="incl/footer.rsp"%>
+<%@include file="incl/footer.md.rsp"%>

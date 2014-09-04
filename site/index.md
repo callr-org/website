@@ -24,8 +24,8 @@ You can install multiple packages by separating them with commas, e.g.
 source('http://callr.org/install#knitr,rstudio/rmarkdown')
 ```
 
-
-_See also [biocLite](biocLite.html) and [rfile](rfile.html)._
+--------------------------------------------------------------
+[install](install.html) | [biocLite](biocLite.html) | [rfile](rfile.html)  
 
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

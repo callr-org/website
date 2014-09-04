@@ -59,6 +59,9 @@ source('http://callr.org/rfile#https://raw.github.com/HenrikBengtsson/R.rsp/mast
 All required packages will automatically be install, if missing.
 
 
+--------------------------------------------------------------
+[install](install.html) | [biocLite](biocLite.html) | [rfile](rfile.html)  
+
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

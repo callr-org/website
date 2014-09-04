@@ -1,4 +1,4 @@
-<%@include file="incl/header.rsp"%>
+<%@include file="incl/header.md.rsp"%>
 
 ## Installing packages
 
@@ -20,5 +20,5 @@ You can install multiple packages by separating them with commas, e.g.
 source('http://callr.org/install#knitr,rstudio/rmarkdown')
 ```
 
-<%@include file="incl/footer.rsp"%>
+<%@include file="incl/footer.md.rsp"%>
 
