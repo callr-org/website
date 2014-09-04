@@ -1,0 +1,16 @@
+## Installing Bioconductor packages
+
+```r
+source('http://callr.org/biocLite#limma')
+```
+
+This is a one-line call identical to
+```r
+source('http://bioconductor.org/biocLite.R')
+biocLite('limma')
+```
+
+You can install multiple packages by separating them with commas, e.g.
+```r
+source('http://callr.org/biocLite#limma,edgeR')
+```

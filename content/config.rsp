@@ -1,0 +1,11 @@
+<%@string site_topdomain='callr.org'%>
+<%@string site_domain='${site_topdomain}'%>
+<%@string site_name='CallR'%>
+<%@string site_acronym='${site_name}'%>
+<%@string site_motto='R made easy'%>
+<%@string site_image=''%>
+<%@meta author='Henrik Bengtsson'%>
+<%@string google_analytics_id='UA-54228632-1'%>
+<%
+subpages <- c("install", "rfile", "biocLite")
+%>

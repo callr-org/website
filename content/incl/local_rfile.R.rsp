@@ -1,0 +1,9 @@
+local_rfile <- function(uris) {
+  if (!isPackageInstalled("R.rsp")) {
+    source("<%=urlroot%>/install#R.rsp")
+  }
+  for (uri in uris) {
+    pp <- R.rsp::rfile(uri)
+    mprint(pp)
+  }
+} # local_rfile()

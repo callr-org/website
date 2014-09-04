@@ -1,0 +1,31 @@
+<%@include file="incl/header.R.rsp"%>
+local({
+
+<%@include file="incl/utils.R.rsp"%>
+<%@include file="incl/findURIs.R"%>
+<%@include file="incl/local_rfile.R.rsp"%>
+
+uris <- findURIs()
+nuris <- length(uris)
+if (nuris == 0L) {
+  # Display usage
+  msg <- "RSP compiler v1.0.2 by Henrik Bengtsson"
+  msg <- c(msg, "")
+  msg <- c(msg, "Usage:")
+  msg <- c(msg, "  source('<%=url%>#<uri>')")
+  msg <- c(msg, "")
+  msg <- c(msg, "Example:")
+  msg <- c(msg, "  source('<%=url%>#report.md.rsp')")
+  message(paste(msg, collapse="\n"))
+} else {
+  # Install package
+  if (nuris == 1L) {
+    msg <- "Compiling RSP document:"
+  } else {
+    msg <- "Compiling RSP documents:"
+  }
+  message(msg, " ", paste(sQuote(uris), collapse=", "))
+  local_rfile(uris)
+}
+
+}) # local()

@@ -1,0 +1,3 @@
+<%@include file="incl/header.R.rsp"%>
+<%@include file="incl/utils.R.rsp"%>
+mstr(parseUrl())

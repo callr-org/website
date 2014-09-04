@@ -1,0 +1,70 @@
+<%
+<%-- Use RSP directives to identify current directory --%>
+path <- dirname("<%@meta name="source"%>")
+source(file.path(path, "printCode.R"))
+%>
+
+<%----------------------------------------------------------------
+ Importing from R.oo
+ ----------------------------------------------------------------%>
+trim <- <% printCode("trim", class="default", envir="R.oo") %>
+
+
+<%----------------------------------------------------------------
+ Importing from R.utils
+ ----------------------------------------------------------------%>
+isPackageInstalled <- <% printCode("isPackageInstalled", class="default", envir="R.utils") %>
+findSourceTraceback <- <% printCode("findSourceTraceback", class="default", envir="R.utils") %>
+
+captureOutput <- utils::capture.output
+
+<% for (mname in c("mprint", "mcat", "mstr", "mprintf")) { %>
+<%=mname%> <- <% printCode(mname, envir="R.utils") %>
+<% } # for (mname ...) %>
+
+# Create debug output functions
+for (mname in c("mprint", "mcat", "mstr", "mprintf")) {
+  dname <- sub("m", "d", mname, fixed=TRUE)
+  if (getOption("install.debug", FALSE)) {
+    assign(dname, get(mname, mode="function"))
+  } else {
+    # No debug output
+    assign(dname, function(...) {})
+  }
+}
+
+hasUrlProtocol <- <% printCode("hasUrlProtocol", class="default", envir="R.utils") %>
+
+# Parse URL
+<%@include file="splitUrl.R"%>
+
+parseUrl <- function() {
+  # Don't assume 'utils' is attached
+  URLdecode <- utils::URLdecode
+
+  url <- getOption("debug_url")
+  if (is.null(url)) {
+    # Find all URL calls
+    urls <- names(findSourceTraceback())
+    pattern <- "^([abcdefghijklmnopqrstuvwxyz]+)(://)(.*)"
+    urls <- grep(pattern, urls, value=TRUE)
+
+    # Nothing found?
+    if (length(urls) == 0L) return(list())
+
+    # Use the most first one
+    url <- urls[1L]
+  }
+
+  # Parse URL
+  splitUrl(url)
+} # parseUrl()
+
+
+<%----------------------------------------------------------------
+ HISTORY:
+ 2014-09-03
+ o Added splitUrl() and parseUrl().
+ o Created. Now dynamically importing utility function from
+   various source/packages.
+ ----------------------------------------------------------------%>

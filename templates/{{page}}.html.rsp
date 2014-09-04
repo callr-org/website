@@ -1,0 +1,77 @@
+<%
+library("R.utils")
+use("R.rsp")
+use("markdown")
+pathTo <- function(path="") {
+  pathR <- getParent("<%@meta name="source"%>", 2L)
+  pathR <- getRelativePath(pathR)
+  pathTo <- paste(c(pathR, path), collapse="/")
+  pathTo <- gsub("./", "", pathTo, fixed=TRUE)
+  pathTo
+} # pathTo()
+%>
+<%@include file="../content/config.rsp"%>
+<%@string label="${site_acronym}"%>
+<%@ifneq page="index"%>
+  <%@string label="${label}: ${page}"%>
+<%@endif%>
+<%@meta title="${label}"%>
+<%@string bootstrap_url="http://netdna.bootstrapcdn.com/bootstrap/3.2.0"%>
+<%@string jquery_url="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1"%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="<%@meta name="author"%>">
+  <link rel="shortcut icon" href="<%pathTo('assets/ico/favicon.ico')%>">
+  <title><%@meta name="title"%></title>
+  <%-- Include the Bootstrap stylesheets --%>
+  <link href="<%@string name="bootstrap_url"%>/css/bootstrap.min.css" rel="stylesheet">
+  <%-- Custom styles for this template --%>
+  <link href="<%=pathTo('assets/css/navbar-fixed-top.css')%>" rel="stylesheet">
+  <link href="<%=pathTo('assets/css/navbar-sticky-bottom.css')%>" rel="stylesheet">
+</head>
+<body>
+<%----------------------------------------------------------------------------
+ HEADER
+ ----------------------------------------------------------------------------%>
+<%@include file="navigator.html.rsp"%>
+
+<%----------------------------------------------------------------------------
+ BODY
+ ----------------------------------------------------------------------------%>
+<div id="wrap">
+
+<div class="container">
+
+<%=
+md <- rstring(file="<%@string name="page"%>.md.rsp", path=pathTo("content"))
+markdownToHTML(text=md, fragment.only=TRUE)
+%>
+
+</div>
+
+<div id="push"></div>
+</div>
+
+<%----------------------------------------------------------------------------
+ FOOTER
+ ----------------------------------------------------------------------------%>
+<div id="footer" style="height: auto;">
+  <div class="container">
+    <%@include file="footer.html.rsp"%>
+  </div>
+</div>
+  <%--- Bootstrap core JavaScript ---%>
+  <%--- Placed at the end of the document so the pages load faster ---%>
+  <script src="<%@string name="jquery_url"%>/jquery.min.js"></script>
+  <script src="<%@string name="bootstrap_url"%>/js/bootstrap.min.js"></script>
+  <%@include file="google-analytics.html.rsp"%>
+  <%-- Include any extras that the page wish to add to the end --%>
+  <%@if test="exists" name="footer_tail"%>
+    <%@string name="footer_tail"%><%@string footer_tail=""%>
+  <%@endif%>
+</body>
+</html>
