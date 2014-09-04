@@ -19,6 +19,14 @@ source('http://callr.org/install#rstudio/shiny')
 
 All dependent packages will be installed.  If a requested package is already installed and up-to-date, it will not be reinstalled.  All installed packages will be updated.
 
+You can install multiple packages by separating them with commas, e.g.
+```r
+source('http://callr.org/install#knitr,rstudio/rmarkdown')
+```
+
+
+_See also [biocLite](biocLite.html) and [rfile](rfile.html)._
+
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

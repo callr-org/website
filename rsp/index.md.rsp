@@ -15,4 +15,12 @@ source('http://callr.org/install#rstudio/shiny')
 
 All dependent packages will be installed.  If a requested package is already installed and up-to-date, it will not be reinstalled.  All installed packages will be updated.
 
+You can install multiple packages by separating them with commas, e.g.
+```r
+source('http://callr.org/install#knitr,rstudio/rmarkdown')
+```
+
+
+_See also [biocLite](biocLite.html) and [rfile](rfile.html)._
+
 <%@include file="incl/footer.rsp"%>

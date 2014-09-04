@@ -395,22 +395,22 @@ installer <- function(pkgs=NULL, ...) {
     message(msg)
   }
 } # installer()
-findPackages <- function(cmd=NULL) {
+findPackages <- function(cmd=NULL, script=NULL) {
   # Don't assume 'utils' is attached
   URLdecode <- utils::URLdecode
 
-  if (is.null(cmd)) {
+  if (is.null(script) || is.null(cmd)) {
     urls <- names(findSourceTraceback())
-    pattern <- ".*/install#"
+    pattern <- ".*/([[:alpha:]][[:alnum:]]*)#(.*)"
     urls <- grep(pattern, urls, value=TRUE)
-    urls <- gsub(pattern, "", urls)
-    cmd <- urls[1]
+    if (is.null(script)) script <- gsub(pattern, "\\1", urls[1L])
+    if (is.null(cmd)) cmd <- gsub(pattern, "\\2", urls[1L])
   }
   if (is.na(cmd)) {
     # Local testing?
-    cmd <- getOption("install#")
+    cmd <- getOption(sprintf("%s#", script))
     if (is.null(cmd)) return(data.frame(name=character(0L), flags=c()))
-    print(cmd)
+    mprint(cmd)
   }
 
   cmd <- URLdecode(cmd)

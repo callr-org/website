@@ -14,10 +14,15 @@ source('http://callr.org/install#knitr')
 source('http://callr.org/install#limma')
 
 # From GitHub
-source('http://callr.org/install#rstudio/shiny')
+source('http://callr.org/install#rstudio/rmarkdown')
 ```
 
 All dependent packages will be installed.  If a requested package is already installed and up-to-date, it will not be reinstalled.  All installed packages will be updated.
+
+You can install multiple packages by separating them with commas, e.g.
+```r
+source('http://callr.org/install#knitr,rstudio/rmarkdown')
+```
 
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
