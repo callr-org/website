@@ -8,8 +8,6 @@
 ######################################################################
 
 
-local({
-
 trim <- function (object, ...) 
 {
     s <- sub("^[\t\n\f\r ]*", "", as.character(object))
@@ -203,72 +201,4 @@ parseUrl <- function() {
 } # parseUrl()
 
 
-gist_to_url <- function(url) {
-  pattern <- "^gist://(.*)/(.*)/(.*)"
-  if (regexpr(pattern, url) == -1) return(url)
-  gsub(pattern, "https://gist.githubusercontent.com/\\1/\\2/raw/\\3", url)
-}
-
-url_to_gist <- function(url) {
-  pattern <- "^https://gist.githubusercontent.com/(.*)/(.*)/raw/(.*)"
-  if (regexpr(pattern, url) == -1) return(url)
-  gsub(pattern, "gist://\\1/\\2/\\3", url)
-}
-
-findURIs <- function() {
-  # Don't assume 'utils' is attached
-  URLdecode <- utils::URLdecode
-
-  url <- parseUrl()
-  uris <- url$fragment
-  uris <- URLdecode(uris)
-  uris <- unlist(strsplit(uris, split="[,#]"))
-
-  # Translater gist:// URIs
-  uris <- sapply(uris, FUN=gist_to_url)
-
-  uris
-} # findURIs()
-local_rfile <- function(uris) {
-  if (!isPackageInstalled("R.rsp")) {
-    source("http://callr.org/install#R.rsp")
-  }
-  for (uri in uris) {
-    pp <- R.rsp::rfile(uri)
-    mprint(pp)
-  }
-}
-
-local_rsource <- function(uris) {
-  if (!isPackageInstalled("R.rsp")) {
-    source("http://callr.org/install#R.rsp")
-  }
-  for (uri in uris) {
-    R.rsp::rsource(uri)
-  }
-}
-
-uris <- findURIs()
-nuris <- length(uris)
-if (nuris == 0L) {
-  # Display usage
-  msg <- "RSP compiler v1.0.2 by Henrik Bengtsson"
-  msg <- c(msg, "")
-  msg <- c(msg, "Usage:")
-  msg <- c(msg, "  source('http://callr.org/header.R#<uri>')")
-  msg <- c(msg, "")
-  msg <- c(msg, "Example:")
-  msg <- c(msg, "  source('http://callr.org/header.R#report.md.rsp')")
-  message(paste(msg, collapse="\n"))
-} else {
-  # Install package
-  if (nuris == 1L) {
-    msg <- "Compiling RSP document:"
-  } else {
-    msg <- "Compiling RSP documents:"
-  }
-  message(msg, " ", paste(sQuote(uris), collapse=", "))
-  local_rfile(uris)
-}
-
-}) # local()
+mstr(parseUrl())

@@ -252,7 +252,7 @@ uris <- findURIs()
 nuris <- length(uris)
 if (nuris == 0L) {
   # Display usage
-  msg <- "RSP compiler v1.0.2 by Henrik Bengtsson"
+  msg <- "RSP sources v1.0.2 by Henrik Bengtsson"
   msg <- c(msg, "")
   msg <- c(msg, "Usage:")
   msg <- c(msg, "  source('http://callr.org/header.R#<uri>')")
@@ -263,12 +263,12 @@ if (nuris == 0L) {
 } else {
   # Install package
   if (nuris == 1L) {
-    msg <- "Compiling RSP document:"
+    msg <- "Sourcing RSP document:"
   } else {
-    msg <- "Compiling RSP documents:"
+    msg <- "Sourcing RSP documents:"
   }
   message(msg, " ", paste(sQuote(uris), collapse=", "))
-  local_rfile(uris)
+  local_rsource(uris)
 }
 
 }) # local()

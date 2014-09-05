@@ -2,7 +2,7 @@
 
 ## knitr
 ```r
-# knitr R Markdown to HTML
+# knitr R Markdown to HTML (local)
 source('http://callr.org/rfile#001-minimal.Rmd')
 
 # knitr R Markdown to HTML (online)
@@ -12,13 +12,13 @@ source('http://callr.org/rfile#https://raw.github.com/yihui/knitr-examples/maste
 
 ## RSP
 ```r
-# RSP to Markdown to HTML report
+# RSP to Markdown to HTML (local)
 source('http://callr.org/rfile#LoremIpsum.md.rsp')
 
-# RSP to Markdown to HTML report (online)
+# RSP to Markdown to HTML (online)
 source('http://callr.org/rfile#https://raw.github.com/HenrikBengtsson/R.rsp/master/inst/rsp_LoremIpsum/LoremIpsum.md.rsp')
 
-# RSP to Markdown to HTML report (GitHub gist)
+# RSP to Markdown to HTML (GitHub gist)
 source('http://callr.org/rfile#gist://HenrikBengtsson/4c1d81ef18129563c79b/matrixNA-wrong-way.md.rsp')
 ```
 
@@ -39,7 +39,7 @@ source('http://callr.org/rfile#https://raw.github.com/HenrikBengtsson/R.rsp/mast
 
 ## Markdown (static)
 ```r
-# Markdown to HTML
+# Markdown to HTML (local)
 source('http://callr.org/rfile#LoremIpsum.md')
 ```
 
