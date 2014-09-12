@@ -1,12 +1,12 @@
 gist_to_url <- function(url) {
   pattern <- "^gist://(.*)/(.*)/(.*)"
-  if (regexpr(pattern, url) == -1) return(url)
+  if (regexpr(pattern, url) == -1L) return(url)
   gsub(pattern, "https://gist.githubusercontent.com/\\1/\\2/raw/\\3", url)
 }
 
 url_to_gist <- function(url) {
   pattern <- "^https://gist.githubusercontent.com/(.*)/(.*)/raw/(.*)"
-  if (regexpr(pattern, url) == -1) return(url)
+  if (regexpr(pattern, url) == -1L) return(url)
   gsub(pattern, "gist://\\1/\\2/\\3", url)
 }
 
@@ -16,6 +16,12 @@ findURIs <- function() {
 
   url <- parseUrl()
   uris <- url$fragment
+
+  # Nothing to do?
+  if (length(uris) == 0L) {
+    return(character(0L))
+  }
+
   uris <- URLdecode(uris)
   uris <- unlist(strsplit(uris, split="[,#]"))
 

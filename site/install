@@ -498,6 +498,12 @@ installer <- function(pkgs=NULL, ...) {
 findPackages <- function() {
   url <- parseUrl()
   pkgs <- url$fragment
+
+  # Nothing to do?
+  if (length(pkgs) == 0L) {
+    return(data.frame(name=character(0L), fullname=character(0)))
+  }
+
   pkgs <- unlist(strsplit(pkgs, split="[,#]"))
 
   pkgs <- lapply(pkgs, FUN=function(pkg) {
