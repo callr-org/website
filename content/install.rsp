@@ -1,3 +1,4 @@
+<%@string script="install"%>
 <%@include file="incl/header.R.rsp"%>
 local({
 

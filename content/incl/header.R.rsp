@@ -1,6 +1,6 @@
 <%
-script <- gsub("[.]rsp$", "", basename("<%@meta name="source"%>"))
 urlroot <- "http://<%@string name="site_domain"%>"
+script <- "<%@string name="script"%>"
 url <- paste(c(urlroot, script), collapse="/")
 %>
 <%@include file="copyright.R.rsp"%>

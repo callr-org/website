@@ -1,3 +1,4 @@
+<%@string script="rsource"%>
 <%@include file="incl/header.R.rsp"%>
 local({
 
