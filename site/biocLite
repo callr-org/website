@@ -65,8 +65,43 @@ findSourceTraceback <- function (...)
 }
 
 
-captureOutput <- utils::capture.output
-
+captureOutput <- function (expr, file = NULL, append = FALSE, collapse = NULL, 
+    envir = parent.frame()) 
+{
+    if (is.null(file)) 
+        file <- raw(0L)
+    if (identical(file, character(0L))) 
+        file <- NULL
+    if (is.raw(file)) {
+        res <- eval({
+            file <- rawConnection(raw(0L), open = "w")
+            on.exit({
+                if (!is.null(file)) close(file)
+            })
+            capture.output(expr, file = file)
+            res <- rawConnectionValue(file)
+            close(file)
+            file <- NULL
+            res <- rawToChar(res)
+            res
+        }, envir = envir, enclos = envir)
+    }
+    else {
+        res <- eval({
+            capture.output(expr, file = file, append = append)
+        }, envir = envir, enclos = envir)
+    }
+    if (is.null(collapse)) {
+        res <- unlist(strsplit(res, split = "\n", fixed = TRUE), 
+            use.names = FALSE)
+    }
+    else if (collapse != "\n") {
+        res <- unlist(strsplit(res, split = "\n", fixed = TRUE), 
+            use.names = FALSE)
+        res <- paste(res, collapse = collapse)
+    }
+    res
+}
 mprint <- function (..., appendLF = FALSE) 
 {
     bfr <- captureOutput(print(...), envir = parent.frame())
@@ -91,10 +126,10 @@ mprintf <- function (..., appendLF = FALSE)
     message(bfr, appendLF = appendLF)
 }
 # Create debug output functions
-for (mname in c("mprint", "mcat", "mstr", "mprintf")) {
-  dname <- sub("m", "d", mname, fixed=TRUE)
+for (name in c("mprint", "mcat", "mstr", "mprintf")) {
+  dname <- sub("m", "d", name, fixed=TRUE)
   if (getOption("install.debug", FALSE)) {
-    assign(dname, get(mname, mode="function"))
+    assign(dname, get(name, mode="function"))
   } else {
     # No debug output
     assign(dname, function(...) {})

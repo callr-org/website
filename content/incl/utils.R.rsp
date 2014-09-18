@@ -16,17 +16,15 @@ trim <- <% printCode("trim", class="default", envir="R.oo") %>
 isPackageInstalled <- <% printCode("isPackageInstalled", class="default", envir="R.utils") %>
 findSourceTraceback <- <% printCode("findSourceTraceback", class="default", envir="R.utils") %>
 
-captureOutput <- utils::capture.output
-
-<% for (mname in c("mprint", "mcat", "mstr", "mprintf")) { %>
-<%=mname%> <- <% printCode(mname, envir="R.utils") %>
-<% } # for (mname ...) %>
+<% for (name in c("captureOutput", "mprint", "mcat", "mstr", "mprintf")) { %>
+<%=name%> <- <% printCode(name, envir="R.utils") %>
+<% } # for (name ...) %>
 
 # Create debug output functions
-for (mname in c("mprint", "mcat", "mstr", "mprintf")) {
-  dname <- sub("m", "d", mname, fixed=TRUE)
+for (name in c("mprint", "mcat", "mstr", "mprintf")) {
+  dname <- sub("m", "d", name, fixed=TRUE)
   if (getOption("install.debug", FALSE)) {
-    assign(dname, get(mname, mode="function"))
+    assign(dname, get(name, mode="function"))
   } else {
     # No debug output
     assign(dname, function(...) {})
@@ -63,6 +61,8 @@ parseUrl <- function() {
 
 <%----------------------------------------------------------------
  HISTORY:
+ 2014-09-17
+ o Now captureOutput() is also imported from R.utils.
  2014-09-03
  o Added splitUrl() and parseUrl().
  o Created. Now dynamically importing utility function from
