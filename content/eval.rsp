@@ -1,0 +1,51 @@
+<%@string script="eval"%>
+<%@include file="incl/header.R.rsp"%>
+<%@include file="incl/utils.R.rsp"%>
+
+local({
+
+url <- parseUrl()
+code <- url$fragment
+
+if (length(code) == 0L) {
+  # Display usage
+  msg <- "callr.org/eval v1.0.0 by Henrik Bengtsson"
+  msg <- c(msg, "")
+  msg <- c(msg, "Usage:")
+  msg <- c(msg, "  source('<%=url%>#<uri>')")
+  msg <- c(msg, "")
+  msg <- c(msg, "Example:")
+  msg <- c(msg, "  source('<%=url%>#x=runif(1)')")
+  message(paste(msg, collapse="\n"))
+} else {
+  dcat("Parsing R code...\n")
+  dcat(code, "\n")
+  expr <- parse(text=code)
+  dcat("Parsing R code...OK\n")
+
+  if (grepl("::", code, fixed=TRUE)) {
+    dcat("Installing packages...\n")
+    parts <- strsplit(code, split="(::|:::)")
+    parts <- lapply(parts, FUN=function(x) x[-length(x)])
+    parts <- lapply(parts, FUN=function(x) {
+      x <- gsub(".*[^[:alnum:]._]", "", x)
+    })
+    pkgs <- unlist(parts, use.names=FALSE)
+    pkgs <- unique(pkgs)
+    dprint(pkgs)
+    if (!isPackageInstalled("R.utils")) {
+      local({
+        source("http://callr.org/install#R.utils", local=TRUE)
+      })
+    }
+    # Attach packages.  Install, iff missing
+    R.utils::use(pkgs)
+    dcat("Installing packages...OK\n")
+  }
+
+  dcat("Evaluating R code...\n")
+  evalvalue <<- eval(expr, envir=globalenv())
+  dcat("Evaluating R code...OK\n")
+}
+
+}) # local()

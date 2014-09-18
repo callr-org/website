@@ -1,0 +1,286 @@
+######################################################################
+# This script is part of the http://callr.org suite.
+# It was dynamically generated from a set of RSP templates,
+# which are available at https://github.com/callr-org/.
+#
+# License: GPL (>= 2.1)
+# Copyright: Henrik Bengtsson
+######################################################################
+
+
+trim <- function (object, ...) 
+{
+    s <- sub("^[\t\n\f\r ]*", "", as.character(object))
+    s <- sub("[\t\n\f\r ]*$", "", s)
+    s
+}
+
+
+
+isPackageInstalled <- function (package, ...) 
+{
+    suppressWarnings({
+        paths <- sapply(package, FUN = function(p) system.file(package = p))
+    })
+    (paths != "")
+}
+
+findSourceTraceback <- function (...) 
+{
+    argsToFind <- names(formals(source))
+    srcfileList <- list()
+    for (ff in sys.nframe():0) {
+        env <- sys.frame(ff)
+        exist <- sapply(argsToFind, FUN = exists, envir = env, 
+            inherits = FALSE)
+        if (!all(exist)) {
+            next
+        }
+        srcfile <- get("srcfile", envir = env, inherits = FALSE)
+        if (!is.null(srcfile)) {
+            if (!is.function(srcfile)) {
+                srcfileList <- c(srcfileList, list(srcfile))
+            }
+        }
+    }
+    pathnames <- sapply(srcfileList, FUN = function(srcfile) {
+        if (inherits(srcfile, "srcfile")) {
+            pathname <- srcfile$filename
+        }
+        else if (is.environment(srcfile)) {
+            pathname <- srcfile$filename
+        }
+        else if (is.character(srcfile)) {
+            pathname <- srcfile
+        }
+        else {
+            pathname <- NA_character_
+            warning("Unknown class of 'srcfile': ", class(srcfile)[1L])
+        }
+        pathname
+    })
+    names(srcfileList) <- pathnames
+    srcfileList
+}
+
+
+captureOutput <- function (expr, file = NULL, append = FALSE, collapse = NULL, 
+    envir = parent.frame()) 
+{
+    if (is.null(file)) 
+        file <- raw(0L)
+    if (identical(file, character(0L))) 
+        file <- NULL
+    if (is.raw(file)) {
+        res <- eval({
+            file <- rawConnection(raw(0L), open = "w")
+            on.exit({
+                if (!is.null(file)) close(file)
+            })
+            capture.output(expr, file = file)
+            res <- rawConnectionValue(file)
+            close(file)
+            file <- NULL
+            res <- rawToChar(res)
+            res
+        }, envir = envir, enclos = envir)
+    }
+    else {
+        res <- eval({
+            capture.output(expr, file = file, append = append)
+        }, envir = envir, enclos = envir)
+    }
+    if (is.null(collapse)) {
+        res <- unlist(strsplit(res, split = "\n", fixed = TRUE), 
+            use.names = FALSE)
+    }
+    else if (collapse != "\n") {
+        res <- unlist(strsplit(res, split = "\n", fixed = TRUE), 
+            use.names = FALSE)
+        res <- paste(res, collapse = collapse)
+    }
+    res
+}
+mprint <- function (..., appendLF = FALSE) 
+{
+    bfr <- captureOutput(print(...), envir = parent.frame())
+    bfr <- paste(c(bfr, ""), collapse = "\n")
+    message(bfr, appendLF = appendLF)
+}
+mcat <- function (..., appendLF = FALSE) 
+{
+    bfr <- captureOutput(cat(...), envir = parent.frame())
+    bfr <- paste(c(bfr, ""), collapse = "\n")
+    message(bfr, appendLF = appendLF)
+}
+mstr <- function (..., appendLF = FALSE) 
+{
+    bfr <- captureOutput(str(...), envir = parent.frame())
+    bfr <- paste(c(bfr, ""), collapse = "\n")
+    message(bfr, appendLF = appendLF)
+}
+mprintf <- function (..., appendLF = FALSE) 
+{
+    bfr <- sprintf(...)
+    message(bfr, appendLF = appendLF)
+}
+# Create debug output functions
+for (name in c("mprint", "mcat", "mstr", "mprintf")) {
+  dname <- sub("m", "d", name, fixed=TRUE)
+  if (getOption("install.debug", FALSE)) {
+    assign(dname, get(name, mode="function"))
+  } else {
+    # No debug output
+    assign(dname, function(...) {})
+  }
+}
+
+hasUrlProtocol <- function (pathname, ...) 
+{
+    pattern <- "^([abcdefghijklmnopqrstuvwxyz]+)(://.*)"
+    (regexpr(pattern, pathname) != -1)
+}
+
+
+# Parse URL
+splitUrl <- function(url, ...) {
+  stopifnot(length(url) == 1L)
+  if (!hasUrlProtocol(url)) stop("Not a valid URL: ", url)
+
+  # Get the protocol
+  pattern <- "^([abcdefghijklmnopqrstuvwxyz]+)(://)(.*)"
+  protocol <- gsub(pattern, "\\1", url, ignore.case=TRUE)
+  tail <- gsub(pattern, "\\3", url, ignore.case=TRUE)
+
+  # Allocate results
+  res <- list(
+    url=url,
+    protocol=protocol,
+    hierarchical_part=NULL,
+    host=NULL, path=NULL,
+    query=NULL, query_parsed=NULL,
+    fragment=NULL
+  )
+
+  # hierarchical_part
+  pos <- regexpr("[?#]", tail)
+  if (pos != -1L) {
+    sep <- substring(tail, first=pos, last=pos)
+    res$hierarchical_part <- substring(tail, first=1L, last=pos-1L)
+    tail <- substring(tail, first=pos+1L)
+  } else {
+    res$hierarchical_part <- tail
+    tail <- ""
+    sep <- NULL
+  }
+
+  # Get the host and the path
+  parts <- strsplit(res$hierarchical_part, split="/", fixed=TRUE)[[1L]]
+  if (length(parts) > 0L) {
+    res$host <- parts[1L]
+    res$path <- paste(parts[-1L], collapse="/")
+  } else {
+    res$host <- NULL
+    res$path <- res$hierarchical_part
+  }
+
+  # Done?
+  if (nchar(tail) == 0L) {
+    return(res)
+  }
+
+  if (sep == "?") {
+    # Get the query then fragments
+    res$query <- gsub("#.*", "", tail)
+    res$fragment <- gsub(".*#", "", tail)
+  } else if (sep == "#") {
+    res$fragment <- gsub("[?].*", "", tail)
+    res$query <- gsub(".*[?]", "", tail)
+  }
+
+  # Parse query
+  if (length(res$query) > 0L) {
+    parts <- strsplit(res$query, split="&", fixed=TRUE)[[1L]]
+    if (length(parts) > 0L) {
+      parts <- strsplit(parts, split="=", fixed=TRUE)
+      names <- unlist(lapply(parts, FUN=function(x) x[1L]), use.names=FALSE)
+      args <- lapply(parts, FUN=function(x) paste(x[-1L], collapse="="))
+      names(args) <- names
+      res$query_parsed <- args
+    }
+  }
+
+  res
+} # splitUrl()
+
+parseUrl <- function() {
+  # Don't assume 'utils' is attached
+  URLdecode <- utils::URLdecode
+
+  url <- getOption("debug_url")
+  if (is.null(url)) {
+    # Find all URL calls
+    urls <- names(findSourceTraceback())
+    pattern <- "^([abcdefghijklmnopqrstuvwxyz]+)(://)(.*)"
+    urls <- grep(pattern, urls, value=TRUE)
+
+    # Nothing found?
+    if (length(urls) == 0L) return(list())
+
+    # Use the most first one
+    url <- urls[1L]
+  }
+
+  # Parse URL
+  splitUrl(url)
+} # parseUrl()
+
+
+
+local({
+
+url <- parseUrl()
+code <- url$fragment
+
+if (length(code) == 0L) {
+  # Display usage
+  msg <- "callr.org/eval v1.0.0 by Henrik Bengtsson"
+  msg <- c(msg, "")
+  msg <- c(msg, "Usage:")
+  msg <- c(msg, "  source('http://callr.org/eval#<uri>')")
+  msg <- c(msg, "")
+  msg <- c(msg, "Example:")
+  msg <- c(msg, "  source('http://callr.org/eval#x=runif(1)')")
+  message(paste(msg, collapse="\n"))
+} else {
+  dcat("Parsing R code...\n")
+  dcat(code, "\n")
+  expr <- parse(text=code)
+  dcat("Parsing R code...OK\n")
+
+  if (grepl("::", code, fixed=TRUE)) {
+    dcat("Installing packages...\n")
+    parts <- strsplit(code, split="(::|:::)")
+    parts <- lapply(parts, FUN=function(x) x[-length(x)])
+    parts <- lapply(parts, FUN=function(x) {
+      x <- gsub(".*[^[:alnum:]._]", "", x)
+    })
+    pkgs <- unlist(parts, use.names=FALSE)
+    pkgs <- unique(pkgs)
+    dprint(pkgs)
+    if (!isPackageInstalled("R.utils")) {
+      local({
+        source("http://callr.org/install#R.utils", local=TRUE)
+      })
+    }
+    # Attach packages.  Install, iff missing
+    R.utils::use(pkgs)
+    dcat("Installing packages...OK\n")
+  }
+
+  dcat("Evaluating R code...\n")
+  evalvalue <<- eval(expr, envir=globalenv())
+  dcat("Evaluating R code...OK\n")
+}
+
+}) # local()
