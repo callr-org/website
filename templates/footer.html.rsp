@@ -1,7 +1,12 @@
 <p class="muted credit" style="font-size: small;">
 <% pathname <- pathTo("content/<%@string name="page"%>.rsp") %>
 <% if (isFile(pathname)) { %>
-<%  script <- rfile(file=pathname) %>
+<%
+  # Compile script
+  script <- rfile(file=pathname)
+  # Validate script
+  expr <- parse(file=script)
+%>
 <a href="<%@string name="page"%>">script</a> | 
 <% } %>
 <a href="http://github.com/callr-org/">GitHub</a>

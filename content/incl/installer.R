@@ -51,27 +51,51 @@ installer <- function(pkgs=NULL, ...) {
   pkgs0 <- installed.packages()[,"Version"]
   pkgs0c <- paste(names(pkgs0), pkgs0)
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Install requested packages
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Nothing to do.
   if (nrow(pkgs) == 0L) message("No packages specified.")
 
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Flags
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ## Global flags
+  # (u) Disable update of all installed packages
+  update <- !any(sapply(pkgs$flags, FUN=function(x) is.element("u", x)))
+
+  # (U) If update, ask user to confirm?
+  update_ask <- !any(sapply(pkgs$flags, FUN=function(x) is.element("U", x)))
+
+  # (Q) Super quiet installation
   quiet <- any(sapply(pkgs$flags, FUN=function(x) is.element("Q", x)))
 
-  pkgs$isInstalled <- isPackageInstalled(pkgs$name)
-
+  ## Package specific flags
+  # (!) Force installation
   pkgs$force <- sapply(pkgs$flags, FUN=function(x) is.element("!", x))
-  pkgs$suggests <- sapply(pkgs$flags, FUN=function(x) is.element("S", x))
-  pkgs$recommends <- !sapply(pkgs$flags, FUN=function(x) is.element("r", x))
 
-  # Install packages from URL?
+  # (s) Install requested packages from source tar.gz
+  pkgs$source <- sapply(pkgs$flags, FUN=function(x) is.element("s", x))
+
+  # (D) Install packages directly from URLs
   pkgs$url <- any(sapply(pkgs$flags, FUN=function(x) is.element("D", x)))
 
-  # Install packages from GitHub?
+  # (G) Install packages directly from GitHub
   pkgs$github <- any(sapply(pkgs$flags, FUN=function(x) is.element("G", x)))
 
-  # To install
+  # (S) Also install suggested packages
+  pkgs$suggests <- sapply(pkgs$flags, FUN=function(x) is.element("S", x))
+
+  # (r) Also install "recommended" packages.  Recommended packages
+  #     are those listed in DESCRIPTION field 'SuggestsNote:' after
+  #     string "Recommended:".  This particular format is not official
+  #     (CRAN, Bioconductor, ...).  It was invented by callr.org and
+  #     is accepted by CRAN rules.
+  pkgs$recommends <- !sapply(pkgs$flags, FUN=function(x) is.element("r", x))
+
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Install requested packages
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  pkgs$isInstalled <- isPackageInstalled(pkgs$name)
   pkgsT <- subset(pkgs, !isInstalled | force)
 
   # DEBUG
@@ -204,13 +228,11 @@ installer <- function(pkgs=NULL, ...) {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Update?
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  update <- !any(sapply(pkgs$flags, FUN=function(x) is.element("u", x)))
   if (update) {
-    ask <- !any(sapply(pkgs$flags, FUN=function(x) is.element("U", x)))
     # For some reason withCallingHandlers() fails to capture messages
     # on "Warning: unable to access index for repository ...".
     suppressWarnings({
-      update.packages(..., quiet=quiet, ask=ask)
+      update.packages(..., quiet=quiet, ask=update_ask)
     })
   }
 
