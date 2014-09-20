@@ -260,7 +260,43 @@ parseUrl <- function() {
 } # parseUrl()
 
 
-mstr(parseUrl())
-mprint(sessionInfo())
-mprintf("pkgType=%s\n", sQuote(getOption("pkgType")))
 
+mcat("Debugging...\n")
+local({
+  logfile <- "callr.org.debug.txt"
+  mprintf("* Redirecting output to file: %s\n", sQuote(logfile))
+  sink(logfile, type="output")
+  on.exit(sink(type="output"))
+
+  oopts <- options(width=1000)
+  on.exit(options(oopts), add=TRUE)
+
+  mcat("* parseUrl()\n")
+  cat("\n* parseUrl()\n")
+  str(parseUrl())
+
+  mcat("* sessionInfo()\n")
+  cat("\n* sessionInfo()\n")
+  print(sessionInfo())
+
+  pkgType <- getOption("pkgType")
+  mcat("* Option 'pkgType'\n")
+  cat("\n* Option 'pkgType'\n")
+  cat(sprintf("Option pkgType=%s\n", sQuote(pkgType)))
+
+  repositories <- "http://braju.com/R"
+  for (repos in repositories) {
+    contriburl <- contrib.url(repos, pkgType)
+    mprintf("* Available packages at %s\n", sQuote(contriburl))
+    cat(sprintf("\n* Available packages at %s:\n", sQuote(contriburl)))
+    pkgs <- available.packages(contriburl)
+    print(pkgs)
+  }
+
+  mcat("* Timestamp\n")
+  cat(sprintf("\n* Timestamp: %s\n", Sys.time()))
+
+  mprintf("* Result file: %s\n", sQuote(logfile))
+})
+
+mcat("Debugging...DONE\n")
