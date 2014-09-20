@@ -2,7 +2,6 @@
 <%@include file="incl/header.R.rsp"%>
 <%@include file="incl/utils.R.rsp"%>
 mstr(parseUrl())
+mprint(sessionInfo())
+mprintf("pkgType=%s\n", sQuote(getOption("pkgType")))
 
-withVerbose({
-  mprint(sessionInfo())
-})

@@ -261,7 +261,6 @@ parseUrl <- function() {
 
 
 mstr(parseUrl())
+mprint(sessionInfo())
+mprintf("pkgType=%s\n", sQuote(getOption("pkgType")))
 
-withVerbose({
-  mprint(sessionInfo())
-})
