@@ -1,4 +1,6 @@
 ######################################################################
+# See http://callr.org/rsource.html for help.
+#
 # This script is part of the http://callr.org suite.
 # It was dynamically generated from a set of RSP templates,
 # which are available at https://github.com/callr-org/.
@@ -9,6 +11,8 @@
 
 
 local({
+
+localenv <- environment()
 
 trim <- function (object, ...) 
 {
@@ -126,16 +130,41 @@ mprintf <- function (..., appendLF = FALSE)
     bfr <- sprintf(...)
     message(bfr, appendLF = appendLF)
 }
-# Create debug output functions
+# Create default debug output functions
 for (name in c("mprint", "mcat", "mstr", "mprintf")) {
   dname <- sub("m", "d", name, fixed=TRUE)
-  if (getOption("install.debug", FALSE)) {
-    assign(dname, get(name, mode="function"))
-  } else {
-    # No debug output
-    assign(dname, function(...) {})
-  }
+  assign(dname, function(...) {})
 }
+
+setParameters <- function(params) {
+  options(parameters=params)
+
+  # Enable verbose output?
+  if (hasParameter("verbose", TRUE)) {
+    for (name in c("mprint", "mcat", "mstr", "mprintf")) {
+      dname <- sub("m", "d", name, fixed=TRUE)
+      assign(dname, get(name, mode="function"), envir=localenv)
+    }
+  }
+} # setParameter()
+
+
+hasParameter <- function(name, value=NULL) {
+  params <- getOption("parameters", NULL)
+  if (is.element(name, params)) return(FALSE)
+  if (is.null(value)) return(TRUE)
+
+  # Check if parameter has the requested value
+  param <- params[[name]]
+
+  # For logical values, allow for T, F, 1 and 0.
+  if (mode(value) == "logical") {
+    param <- switch(param, T=TRUE, F=FALSE, "1"=TRUE, "0"=FALSE, as.logical(param))
+  }
+
+  (param == value)
+} # hasParameter()
+
 
 hasUrlProtocol <- function (pathname, ...) 
 {
@@ -234,7 +263,12 @@ parseUrl <- function() {
   }
 
   # Parse URL
-  splitUrl(url)
+  res <- splitUrl(url)
+
+  # Set URL parameters globally
+  setParameters(res$query_parsed)
+
+  res
 } # parseUrl()
 
 

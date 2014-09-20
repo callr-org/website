@@ -4,6 +4,8 @@ path <- dirname("<%@meta name="source"%>")
 source(file.path(path, "printCode.R"))
 %>
 
+localenv <- environment()
+
 <%----------------------------------------------------------------
  Importing from R.oo
  ----------------------------------------------------------------%>
@@ -20,16 +22,41 @@ findSourceTraceback <- <% printCode("findSourceTraceback", class="default", envi
 <%=name%> <- <% printCode(name, envir="R.utils") %>
 <% } # for (name ...) %>
 
-# Create debug output functions
+# Create default debug output functions
 for (name in c("mprint", "mcat", "mstr", "mprintf")) {
   dname <- sub("m", "d", name, fixed=TRUE)
-  if (getOption("install.debug", FALSE)) {
-    assign(dname, get(name, mode="function"))
-  } else {
-    # No debug output
-    assign(dname, function(...) {})
-  }
+  assign(dname, function(...) {})
 }
+
+setParameters <- function(params) {
+  options(parameters=params)
+
+  # Enable verbose output?
+  if (hasParameter("verbose", TRUE)) {
+    for (name in c("mprint", "mcat", "mstr", "mprintf")) {
+      dname <- sub("m", "d", name, fixed=TRUE)
+      assign(dname, get(name, mode="function"), envir=localenv)
+    }
+  }
+} # setParameter()
+
+
+hasParameter <- function(name, value=NULL) {
+  params <- getOption("parameters", NULL)
+  if (is.element(name, params)) return(FALSE)
+  if (is.null(value)) return(TRUE)
+
+  # Check if parameter has the requested value
+  param <- params[[name]]
+
+  # For logical values, allow for T, F, 1 and 0.
+  if (mode(value) == "logical") {
+    param <- switch(param, T=TRUE, F=FALSE, "1"=TRUE, "0"=FALSE, as.logical(param))
+  }
+
+  (param == value)
+} # hasParameter()
+
 
 hasUrlProtocol <- <% printCode("hasUrlProtocol", class="default", envir="R.utils") %>
 
@@ -55,12 +82,20 @@ parseUrl <- function() {
   }
 
   # Parse URL
-  splitUrl(url)
+  res <- splitUrl(url)
+
+  # Set URL parameters globally
+  setParameters(res$query_parsed)
+
+  res
 } # parseUrl()
 
 
 <%----------------------------------------------------------------
  HISTORY:
+ 2014-09-20
+ o Added support for URL parameter verbose=TRUE.
+ o Added setParameters() and getParameter().
  2014-09-17
  o Now captureOutput() is also imported from R.utils.
  2014-09-03

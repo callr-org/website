@@ -1,4 +1,6 @@
 ######################################################################
+# See <%=urlroot%>/<%@string name="script"%>.html for help.
+#
 # This script is part of the <%=urlroot%> suite.
 # It was dynamically generated from a set of RSP templates,
 # which are available at https://github.com/callr-org/.
