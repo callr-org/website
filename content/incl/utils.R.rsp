@@ -43,7 +43,7 @@ setParameters <- function(params) {
 
 hasParameter <- function(name, value=NULL) {
   params <- getOption("parameters", NULL)
-  if (is.element(name, params)) return(FALSE)
+  if (!is.element(name, names(params))) return(FALSE)
   if (is.null(value)) return(TRUE)
 
   # Check if parameter has the requested value
