@@ -22,23 +22,13 @@ findSourceTraceback <- <% printCode("findSourceTraceback", class="default", envi
 <%=name%> <- <% printCode(name, envir="R.utils") %>
 <% } # for (name ...) %>
 
-# Create default debug output functions
-for (name in c("mprint", "mcat", "mstr", "mprintf")) {
-  dname <- sub("m", "d", name, fixed=TRUE)
-  assign(dname, function(...) {})
-}
 
-setParameters <- function(params) {
-  options(parameters=params)
-
-  # Enable verbose output?
+withVerbose <- function(expr, ..., envir=parent.frame()) {
   if (hasParameter("verbose", TRUE)) {
-    for (name in c("mprint", "mcat", "mstr", "mprintf")) {
-      dname <- sub("m", "d", name, fixed=TRUE)
-      assign(dname, get(name, mode="function"), envir=localenv)
-    }
+    eval(expr, envir=envir)
   }
-} # setParameter()
+  invisible()
+} # withVerbose()
 
 
 hasParameter <- function(name, value=NULL) {
@@ -85,7 +75,7 @@ parseUrl <- function() {
   res <- splitUrl(url)
 
   # Set URL parameters globally
-  setParameters(res$query_parsed)
+  options(parameters=res$query_parsed)
 
   res
 } # parseUrl()
@@ -95,7 +85,7 @@ parseUrl <- function() {
  HISTORY:
  2014-09-20
  o Added support for URL parameter verbose=TRUE.
- o Added setParameters() and getParameter().
+ o Added getParameter() and withVerbose(). Dropped all d*().
  2014-09-17
  o Now captureOutput() is also imported from R.utils.
  2014-09-03

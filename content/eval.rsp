@@ -18,13 +18,15 @@ if (length(code) == 0L) {
   msg <- c(msg, "  source('<%=url%>#x=runif(1)')")
   message(paste(msg, collapse="\n"))
 } else {
-  dcat("Parsing R code...\n")
-  dcat(code, "\n")
+  withVerbose({
+    mcat("Parsing R code...\n")
+    mcat(code, "\n")
+  })
   expr <- parse(text=code)
-  dcat("Parsing R code...OK\n")
+  withVerbose(mcat("Parsing R code...OK\n"))
 
   if (grepl("::", code, fixed=TRUE)) {
-    dcat("Installing packages...\n")
+    withVerbose(mcat("Installing packages...\n"))
     parts <- strsplit(code, split="(::|:::)")
     parts <- lapply(parts, FUN=function(x) x[-length(x)])
     parts <- lapply(parts, FUN=function(x) {
@@ -32,7 +34,7 @@ if (length(code) == 0L) {
     })
     pkgs <- unlist(parts, use.names=FALSE)
     pkgs <- unique(pkgs)
-    dprint(pkgs)
+    withVerbose(mprint(pkgs))
     if (!isPackageInstalled("R.utils")) {
       local({
         source("http://callr.org/install#R.utils", local=TRUE)
@@ -40,12 +42,15 @@ if (length(code) == 0L) {
     }
     # Attach packages.  Install, iff missing
     R.utils::use(pkgs)
-    dcat("Installing packages...OK\n")
+    withVerbose(mcat("Installing packages...OK\n"))
   }
 
-  dcat("Evaluating R code...\n")
+  withVerbose(mcat("Evaluating R code...\n"))
   evalvalue <<- eval(expr, envir=globalenv())
-  dcat("Evaluating R code...OK\n")
+  withVerbose(mcat("Evaluating R code...OK\n"))
 }
 
+withVerbose({
+  mprint(sessionInfo())
+})
 }) # local()

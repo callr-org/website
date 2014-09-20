@@ -130,23 +130,13 @@ mprintf <- function (..., appendLF = FALSE)
     bfr <- sprintf(...)
     message(bfr, appendLF = appendLF)
 }
-# Create default debug output functions
-for (name in c("mprint", "mcat", "mstr", "mprintf")) {
-  dname <- sub("m", "d", name, fixed=TRUE)
-  assign(dname, function(...) {})
-}
 
-setParameters <- function(params) {
-  options(parameters=params)
-
-  # Enable verbose output?
+withVerbose <- function(expr, ..., envir=parent.frame()) {
   if (hasParameter("verbose", TRUE)) {
-    for (name in c("mprint", "mcat", "mstr", "mprintf")) {
-      dname <- sub("m", "d", name, fixed=TRUE)
-      assign(dname, get(name, mode="function"), envir=localenv)
-    }
+    eval(expr, envir=envir)
   }
-} # setParameter()
+  invisible()
+} # withVerbose()
 
 
 hasParameter <- function(name, value=NULL) {
@@ -266,7 +256,7 @@ parseUrl <- function() {
   res <- splitUrl(url)
 
   # Set URL parameters globally
-  setParameters(res$query_parsed)
+  options(parameters=res$query_parsed)
 
   res
 } # parseUrl()
@@ -292,13 +282,14 @@ installer <- function(pkgs=NULL, ...) {
     a <- .read_repositories(p)
     repos <- a$URL
     names(repos) <- rownames(a)
-	repos
+    repos
   } # knownRepos()
 
 
-  # DEBUG
-  dcat("Argument 'pkgs':\n")
-  dprint(pkgs)
+  withVerbose({
+    mcat("Argument 'pkgs':\n")
+    mprint(pkgs)
+  })
 
   repos <- getOption("repos")
 
@@ -317,9 +308,10 @@ installer <- function(pkgs=NULL, ...) {
   oopts <- options(repos=repos)
   on.exit(options(oopts))
 
-  # DEBUG
-  dcat("Repositories:\n")
-  dprint(repos)
+  withVerbose({
+    mcat("Repositories:\n")
+    mprint(repos)
+  })
 
   # Record package state before
   pkgs0 <- installed.packages()[,"Version"]
@@ -372,9 +364,10 @@ installer <- function(pkgs=NULL, ...) {
   pkgs$isInstalled <- isPackageInstalled(pkgs$name)
   pkgsT <- subset(pkgs, !isInstalled | force)
 
-  # DEBUG
-  dcat("Packages to install:\n")
-  dprint(pkgsT)
+  withVerbose({
+    mcat("Packages to install:\n")
+    mprint(pkgsT)
+  })
 
   warns <- list()
 
@@ -648,4 +641,8 @@ if (nrow(pkgs) == 0L) {
   installer(pkgs)
 }
 
+withVerbose({
+  mprint(sessionInfo())
+  mprintf("pkgType=%s\n", sQuote(getOption("pkgType")))
+})
 }) # local()

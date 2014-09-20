@@ -29,4 +29,8 @@ if (nuris == 0L) {
   local_rsource(uris)
 }
 
+
+withVerbose({
+  mprint(sessionInfo())
+})
 }) # local()

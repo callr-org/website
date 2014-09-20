@@ -26,4 +26,9 @@ if (nrow(pkgs) == 0L) {
   source("http://bioconductor.org/biocLite.R", local=FALSE)
   biocLite(pkgs$name)
 }
+
+withVerbose({
+  mprint(sessionInfo())
+  mprintf("pkgType=%s\n", sQuote(getOption("pkgType")))
+})
 }) # local()

@@ -29,4 +29,8 @@ if (nrow(pkgs) == 0L) {
   installer(pkgs)
 }
 
+withVerbose({
+  mprint(sessionInfo())
+  mprintf("pkgType=%s\n", sQuote(getOption("pkgType")))
+})
 }) # local()

@@ -18,13 +18,14 @@ installer <- function(pkgs=NULL, ...) {
     a <- .read_repositories(p)
     repos <- a$URL
     names(repos) <- rownames(a)
-	repos
+    repos
   } # knownRepos()
 
 
-  # DEBUG
-  dcat("Argument 'pkgs':\n")
-  dprint(pkgs)
+  withVerbose({
+    mcat("Argument 'pkgs':\n")
+    mprint(pkgs)
+  })
 
   repos <- getOption("repos")
 
@@ -43,9 +44,10 @@ installer <- function(pkgs=NULL, ...) {
   oopts <- options(repos=repos)
   on.exit(options(oopts))
 
-  # DEBUG
-  dcat("Repositories:\n")
-  dprint(repos)
+  withVerbose({
+    mcat("Repositories:\n")
+    mprint(repos)
+  })
 
   # Record package state before
   pkgs0 <- installed.packages()[,"Version"]
@@ -98,9 +100,10 @@ installer <- function(pkgs=NULL, ...) {
   pkgs$isInstalled <- isPackageInstalled(pkgs$name)
   pkgsT <- subset(pkgs, !isInstalled | force)
 
-  # DEBUG
-  dcat("Packages to install:\n")
-  dprint(pkgsT)
+  withVerbose({
+    mcat("Packages to install:\n")
+    mprint(pkgsT)
+  })
 
   warns <- list()
 
