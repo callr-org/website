@@ -264,6 +264,7 @@ parseUrl <- function() {
 mcat("Debugging...\n")
 local({
   logfile <- "callr.org.debug.txt"
+  logfile <- normalizePath(logfile, mustWork=FALSE)
   mprintf("* Redirecting output to file: %s\n", sQuote(logfile))
   sink(logfile, type="output")
   on.exit(sink(type="output"))

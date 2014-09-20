@@ -5,6 +5,7 @@
 mcat("Debugging...\n")
 local({
   logfile <- "<%@string name="site_domain"%>.debug.txt"
+  logfile <- normalizePath(logfile, mustWork=FALSE)
   mprintf("* Redirecting output to file: %s\n", sQuote(logfile))
   sink(logfile, type="output")
   on.exit(sink(type="output"))
