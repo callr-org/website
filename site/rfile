@@ -262,6 +262,29 @@ parseUrl <- function() {
 } # parseUrl()
 
 
+appendToHistory <- function(cmds, verbose=FALSE) {
+  tf <- tempfile(pattern=".Rhistory-")
+  on.exit({
+    try(unlink(tf))
+  })
+
+  success <- tryCatch({
+    savehistory(tf)
+    hist <- readLines(tf)
+    cmdAll <- paste(cmds, collapse="; ")
+    hist <- c(hist, cmdAll)
+    writeLines(con=tf, hist)
+    loadhistory(tf)
+    TRUE
+  }, error = function(ex) { FALSE })
+
+  if (success && verbose) {
+    msg <- c("The following have been appended to the command history:",
+             "", cmds, "")
+    msg <- paste(msg, collapse="\n")
+    message(msg)
+  }
+} # appendToHistory()
 gist_to_url <- function(url) {
   pattern <- "^gist://(.*)/(.*)/(.*)"
   if (regexpr(pattern, url) == -1L) return(url)
@@ -294,14 +317,22 @@ findURIs <- function() {
 
   uris
 } # findURIs()
-local_rfile <- function(uris) {
+local_rfile <- function(uris, drop=TRUE) {
   if (!isPackageInstalled("R.rsp")) {
     source("http://callr.org/install#R.rsp")
   }
+  outputs <- list()
   for (uri in uris) {
     pp <- R.rsp::rfile(uri)
     mprint(pp)
+    outputs[[uri]] <- pp
   }
+
+  if (drop && length(outputs) == 1L) {
+    outputs <- outputs[[1]]
+  }
+
+  outputs
 }
 
 local_rsource <- function(uris) {
@@ -317,7 +348,7 @@ uris <- findURIs()
 nuris <- length(uris)
 if (nuris == 0L) {
   # Display usage
-  msg <- "RSP compiler v1.0.2 by Henrik Bengtsson"
+  msg <- "RSP compiler v1.0.3 by Henrik Bengtsson"
   msg <- c(msg, "")
   msg <- c(msg, "Usage:")
   msg <- c(msg, "  source('http://callr.org/rfile#<uri>')")
@@ -333,7 +364,17 @@ if (nuris == 0L) {
     msg <- "Compiling RSP documents:"
   }
   message(msg, " ", paste(sQuote(uris), collapse=", "))
-  local_rfile(uris)
+  cmds <- NULL
+  for (uri in uris) {
+    output <- local_rfile(uri)
+    ext <- tools::file_ext(output)
+    cmd <- sprintf("%s <- R.rsp::rfile('%s')", ext, uri)
+mstr(output)
+mprint(output)
+    assign(ext, output, envir=globalenv())
+    cmds <- c(cmds, cmd)
+  }
+  appendToHistory(cmds, verbose=TRUE)
 }
 
 

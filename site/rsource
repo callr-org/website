@@ -294,14 +294,25 @@ findURIs <- function() {
 
   uris
 } # findURIs()
-local_rfile <- function(uris) {
+local_rfile <- function(uris, drop=TRUE) {
   if (!isPackageInstalled("R.rsp")) {
     source("http://callr.org/install#R.rsp")
   }
+  outputs <- list()
   for (uri in uris) {
     pp <- R.rsp::rfile(uri)
     mprint(pp)
+    outputs[[uri]] <- pp
   }
+
+mstr(outputs)
+
+  if (drop && length(outputs) == 1L) {
+    outputs <- outputs[[1]]
+  }
+mstr(outputs)
+
+  outputs
 }
 
 local_rsource <- function(uris) {

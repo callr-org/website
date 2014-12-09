@@ -3,6 +3,7 @@
 local({
 
 <%@include file="incl/utils.R.rsp"%>
+<%@include file="incl/appendToHistory.R"%>
 <%@include file="incl/findURIs.R"%>
 <%@include file="incl/local_rsp.R.rsp"%>
 
@@ -10,7 +11,7 @@ uris <- findURIs()
 nuris <- length(uris)
 if (nuris == 0L) {
   # Display usage
-  msg <- "RSP compiler v1.0.2 by Henrik Bengtsson"
+  msg <- "RSP compiler v1.0.3 by Henrik Bengtsson"
   msg <- c(msg, "")
   msg <- c(msg, "Usage:")
   msg <- c(msg, "  source('<%=url%>#<uri>')")
@@ -26,7 +27,17 @@ if (nuris == 0L) {
     msg <- "Compiling RSP documents:"
   }
   message(msg, " ", paste(sQuote(uris), collapse=", "))
-  local_rfile(uris)
+  cmds <- NULL
+  for (uri in uris) {
+    output <- local_rfile(uri)
+    ext <- tools::file_ext(output)
+    cmd <- sprintf("%s <- R.rsp::rfile('%s')", ext, uri)
+mstr(output)
+mprint(output)
+    assign(ext, output, envir=globalenv())
+    cmds <- c(cmds, cmd)
+  }
+  appendToHistory(cmds, verbose=TRUE)
 }
 
 

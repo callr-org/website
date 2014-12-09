@@ -3,6 +3,7 @@
 local({
 
 <%@include file="incl/utils.R.rsp"%>
+<%@include file="incl/appendToHistory.R"%>
 <%@include file="incl/installer.R"%>
 <%@include file="incl/findPackages.R"%>
 
