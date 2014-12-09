@@ -369,12 +369,12 @@ if (nuris == 0L) {
     output <- local_rfile(uri)
     ext <- tools::file_ext(output)
     cmd <- sprintf("%s <- R.rsp::rfile('%s')", ext, uri)
-mstr(output)
-mprint(output)
     assign(ext, output, envir=globalenv())
     cmds <- c(cmds, cmd)
+    
+    message(sprintf("\nTo open this %s document, type !%s and press ENTER.\n", toupper(ext), ext))
   }
-  appendToHistory(cmds, verbose=TRUE)
+  appendToHistory(cmds, verbose=FALSE)
 }
 
 
