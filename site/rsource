@@ -305,12 +305,9 @@ local_rfile <- function(uris, drop=TRUE) {
     outputs[[uri]] <- pp
   }
 
-mstr(outputs)
-
   if (drop && length(outputs) == 1L) {
     outputs <- outputs[[1]]
   }
-mstr(outputs)
 
   outputs
 }

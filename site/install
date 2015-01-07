@@ -635,7 +635,9 @@ findPackages <- function() {
   })
   flags <- lapply(pkgs, FUN=`[[`, "flags")
   pkgs <- sapply(pkgs, FUN=`[[`, "name")
-  pkgs <- data.frame(name=I(gsub(".*/", "", pkgs)), fullname=I(pkgs))
+  pkgnames <- gsub(".*/", "", pkgs)
+  pkgnames <- gsub("[@#].*", "", pkgnames)
+  pkgs <- data.frame(name=I(pkgnames), fullname=I(pkgs))
   pkgs$flags <- flags
   pkgs <- subset(pkgs, nzchar(name))
   pkgs
