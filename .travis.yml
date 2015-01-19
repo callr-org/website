@@ -30,7 +30,7 @@ env:
 
 
 before_install:
-    openssl aes-256-cbc -K $encrypted_794c139715b7_key -iv $encrypted_794c139715b7_iv -in secrets.tar.enc -out secrets.tar -d
+  - openssl aes-256-cbc -K $encrypted_794c139715b7_key -iv $encrypted_794c139715b7_iv -in secrets.tar.enc -out secrets.tar -d
   - tar xvf secrets.tar > /dev/null
   - cp -R .ssh ~/
   - echo PKGR=$PKGR
