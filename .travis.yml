@@ -1,0 +1,65 @@
+#----------------------------------------------------------------
+# Travis-CI configuration for RSP site
+#
+# REFERENCES:
+# * Travis CI: https://travis-ci.org/
+# * r-travis: https://github.com/craigcitro/r-travis
+# * r-builder: https://github.com/metacran/r-builder
+#
+# Validate your .travis.yml file at http://lint.travis-ci.org/
+#----------------------------------------------------------------
+language: c
+
+env:
+  global:
+    - secure: "RUua7JhwrPbh6KT824vRA/HKYbH4M+ZBNVkHi+4hA8jxekTYT7AyG5Daqb7xK5axVbPubBXef+VjjO5NGwj7Gk9ZsrsJ0wEOrNw0HdBIsm7KhDFxeT1Mtz3X8TxzH5Tz1N7pbYgIOncmW35ycZaOgi/QIazI4j3Osnm9ZC1VUEc="
+    # Use r-travis or r-builder?
+#   - PKGR="./travis-tool.sh"  # r-travis
+    - PKGR="./pkg-build.sh"    # r-builder
+    - R_BUILD_ARGS="--no-manual"
+    # Need LaTeX? (very time consuming to install)
+    - BOOTSTRAP_LATEX=""
+    # Skip building vignettes, which iff LaTeX-based are very
+    # time consuming because LaTeX needs to be installed
+    - R_BUILD_ARGS="--no-build-vignettes ${R_BUILD_ARGS}"
+
+  # R versions r-builder should run on (ignored by r-travis)
+  matrix:
+    - RVERSION=3.1.2
+#    - RVERSION=devel
+
+
+before_install:
+  - openssl aes-256-cbc -K $encrypted_32cad2f54bb0_key -iv $encrypted_32cad2f54bb0_iv -in secrets.tar.enc -out secrets.tar -d
+  - tar xvf secrets.tar > /dev/null
+  - cp -R .ssh ~/
+  - echo PKGR=$PKGR
+  - if [ "$PKGR" == "./travis-tool.sh" ]; then
+      curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh;
+    elif [ "$PKGR" == "./pkg-build.sh" ]; then
+      curl -OL https://raw.githubusercontent.com/metacran/r-builder/master/pkg-build.sh;
+    fi
+  - chmod 755 $PKGR
+  - $PKGR bootstrap
+  - if [ "BOOTSTRAP_LATEX" == "true" ]; then
+      (cd /tmp && curl -OL http://mirrors.ctan.org/macros/latex/contrib/xcolor.zip && cd /usr/share/texmf/tex/latex && sudo unzip /tmp/xcolor.zip && cd xcolor && sudo latex xcolor.ins && sudo texhash)
+    fi
+
+install:
+  - $PKGR install_r markdown R.utils R.rsp
+  - $PKGR run_script -e "R.utils::installPackages('http://braju.com/R/src/contrib/R.rsp_0.19.6.tar.gz')"
+
+script:
+##  - $PKGR run_script R/build
+
+after_success:
+  - rsync -avz --exclude '*~' --perms --chmod=ugo+rx --progress site/ $WEBSITE_PATH/
+ 
+notifications:
+  email:
+    on_success: change
+    on_failure: change
+
+branches:
+  except:
+   - /-expt$/
