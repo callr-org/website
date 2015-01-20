@@ -12,7 +12,7 @@ language: c
 
 env:
   global:
-    - secure: "RUua7JhwrPbh6KT824vRA/HKYbH4M+ZBNVkHi+4hA8jxekTYT7AyG5Daqb7xK5axVbPubBXef+VjjO5NGwj7Gk9ZsrsJ0wEOrNw0HdBIsm7KhDFxeT1Mtz3X8TxzH5Tz1N7pbYgIOncmW35ycZaOgi/QIazI4j3Osnm9ZC1VUEc="
+    - secure: "ni1cbe7x/4zIcHMSMsFkFSD0N9YtKxMIx3jswS64Nhj3aFHhYrPgZDRqVmgS4R08BiAKTBTy8Gjbia4Il+BEDQW55PXx0HKpyn6gAA3CiphxCbtsdwaIBnDgXJgy5EeOI7OzDK1mcx2kzAIzkOG+YhH9F2GkvPOwh5A5Xz6IfEc="
     # Use r-travis or r-builder?
 #   - PKGR="./travis-tool.sh"  # r-travis
     - PKGR="./pkg-build.sh"    # r-builder
