@@ -50,8 +50,6 @@ install:
 #  - $PKGR run_script -e "R.utils::installPackages('http://braju.com/R/src/contrib/R.rsp_0.19.7.tar.gz')"
 
 script:
-    - mkdir -p site/
-    - echo "Hello" > site/hello.html
 ##  - $PKGR run_script R/build
 
 after_success:
