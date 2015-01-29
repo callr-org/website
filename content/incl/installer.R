@@ -1,4 +1,4 @@
-installer <- function(pkgs=NULL, ...) {
+installer <- function(pkgs=NULL, recursive=FALSE, update=TRUE, ...) {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Local functions
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -21,9 +21,68 @@ installer <- function(pkgs=NULL, ...) {
     repos
   } # knownRepos()
 
+  pkgNames <- function(s) {
+    s <- na.omit(s)
+    if (length(s) == 0L) return(s)
+    s <- unlist(strsplit(s, split=",", fixed=TRUE))
+    s <- gsub("[(].*", "", s)
+    gsub("^[ \n]+|[ \n]+$", "", s)
+  }
 
+  pkgDeps <- function(names, fields=c("Depends", "Imports", "LinkingTo"), recursive=FALSE) {
+    withVerbose({
+      message(sprintf("pkgDeps(%s, recursive=%s):\n", paste(sQuote(names), collapse=", "), recursive))
+    })
+
+    if (recursive) {
+      pkgsDepsDone <- NULL
+      res <- NULL
+      while(length(names) > 0L) {
+        resT <- pkgDeps(names, fields=fields, recursive=FALSE)
+        res <- c(res, resT)
+        pkgsDepsDone <- c(pkgsDepsDone, names)
+        names <- setdiff(resT, pkgsDepsDone)
+      }
+    } else {
+      suppressWarnings({
+        res <- unlist(lapply(names, FUN=function(pkg) {
+          deps <- try(packageDescription(pkg, fields=fields, drop=FALSE))
+          if (is.na(deps)) return(character(0L))
+
+          depsS <- deps$SuggestsNote
+          deps$SuggestsNote <- NULL
+          deps <- unlist(deps)
+          deps <- pkgNames(deps)
+
+          if (length(depsS) > 0L) {
+            # Handle 'SuggestsNote' field with 'Recommended:' specially
+            recs <- grep("Recommended:[ ]*", depsS, value=TRUE)
+            recs <- gsub("Recommended:[ ]*", "", depsS)
+            recs <- pkgNames(recs)
+            deps <- sort(unique(c(deps, recs)))
+          }
+
+          deps
+        }))
+      })
+    }
+    res <- unlist(res)
+    res <- setdiff(res, c("R", "base", "methods", "tools", "utils"))
+
+    withVerbose({
+      message("  Packages:")
+      mstr(res)
+    })
+
+    res
+  }
+
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Setup
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   withVerbose({
-    mcat("Argument 'pkgs':\n")
+    message("Argument 'pkgs':\n")
     mprint(pkgs)
   })
 
@@ -45,7 +104,7 @@ installer <- function(pkgs=NULL, ...) {
   on.exit(options(oopts))
 
   withVerbose({
-    mcat("Repositories:\n")
+    message("Repositories:\n")
     mprint(repos)
   })
 
@@ -53,7 +112,21 @@ installer <- function(pkgs=NULL, ...) {
   pkgs0 <- installed.packages()[,"Version"]
   pkgs0c <- paste(names(pkgs0), pkgs0)
 
-  # Nothing to do.
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Arguments
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  if (is.character(pkgs)) {
+    pkgs <- data.frame(
+      name=pkgs,
+      fullname=pkgs,
+      flags="",
+    stringsAsFactors=FALSE)
+  } else if (!is.data.frame(pkgs)) {
+    stop("Argument 'pkgs' must be a data frame or a character vector: ", mode(pkgs))
+  }
+
+  # Nothing to do?
   if (nrow(pkgs) == 0L) message("No packages specified.")
 
 
@@ -62,7 +135,7 @@ installer <- function(pkgs=NULL, ...) {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ## Global flags
   # (u) Disable update of all installed packages
-  update <- !any(sapply(pkgs$flags, FUN=function(x) is.element("u", x)))
+  update <- update && !any(sapply(pkgs$flags, FUN=function(x) is.element("u", x)))
 
   # (U) If update, ask user to confirm?
   update_ask <- !any(sapply(pkgs$flags, FUN=function(x) is.element("U", x)))
@@ -94,6 +167,11 @@ installer <- function(pkgs=NULL, ...) {
   pkgs$recommends <- !sapply(pkgs$flags, FUN=function(x) is.element("r", x))
 
 
+  withVerbose({
+    message("Requested packages (with parsed flags):\n")
+    mprint(pkgs)
+  })
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Install requested packages
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -101,7 +179,7 @@ installer <- function(pkgs=NULL, ...) {
   pkgsT <- subset(pkgs, !isInstalled | force)
 
   withVerbose({
-    mcat("Packages to install:\n")
+    message("Packages to install:\n")
     mprint(pkgsT)
   })
 
@@ -175,45 +253,12 @@ installer <- function(pkgs=NULL, ...) {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   pkgsT <- subset(pkgs, recommends)
   if (nrow(pkgsT) > 0L) {
-    pkgNames <- function(s) {
-      s <- na.omit(s)
-      if (length(s) == 0L) return(s)
-      s <- unlist(strsplit(s, split=",", fixed=TRUE))
-      s <- gsub("[(].*", "", s)
-      gsub("^[ \n]+|[ \n]+$", "", s)
-    }
-
-    pkgDeps <- function(names, fields=c("Depends", "Imports", "LinkingTo"), recursive=FALSE) {
-      if (recursive) {
-        pkgsDepsDone <- NULL
-        res <- NULL
-        while(length(names) > 0L) {
-          resT <- pkgDeps(names, fields=fields, recursive=FALSE)
-          res <- c(res, resT)
-          pkgsDepsDone <- c(pkgsDepsDone, names)
-          names <- setdiff(resT, pkgsDepsDone)
-        }
-      } else {
-        suppressWarnings({
-          res <- unlist(lapply(names, FUN=function(pkg) {
-            deps <- try(packageDescription(pkg, fields=fields, drop=TRUE))
-            deps <- unlist(deps)
-            # Handle 'SuggestsNote' field with 'Recommended:' specially
-            deps <- grep("Recommended:[ ]*", deps, value=TRUE)
-            deps <- gsub("Recommended:[ ]*", "", deps)
-            pkgNames(deps)
-          }))
-        })
-      }
-      res <- unlist(res)
-      res <- setdiff(res, c("R", "base", "methods", "tools", "utils"))
-      res
-    }
-
     # Find all package dependencies
     deps <- pkgDeps(pkgsT$name, recursive=TRUE)
     deps <- sort(unique(c(pkgsT$name, deps)))
 
+    withVerbose({
+    })
     field <- "SuggestsNote"
     recs <- pkgDeps(deps, field=field)
     if (length(recs) > 0L) {
@@ -226,6 +271,42 @@ installer <- function(pkgs=NULL, ...) {
       }
     }
   }
+
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Scan recursively for "recommended" package?
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  if (recursive && FALSE) {  ### NOT NEEDED /HB 2015-01-28
+    withVerbose({
+      message("Scanning recursively dependent packages for \"recommended\" packages:\n")
+    })
+    deps <- pkgDeps(pkgs$name, fields=c("Depends", "Imports", "LinkingTo", "SuggestsNote"), recursive=TRUE)
+    if (length(deps) > 0L) {
+      withVerbose({
+        message(sprintf("  Found %d dependent packages.\n", length(deps)))
+      })
+      recs <- character(0L)
+      for (pkg in deps) {
+        pkgsR <- pkgDeps(pkg, field="SuggestsNote", recursive=TRUE)
+        recs <- c(recs, pkgsR)
+      }
+      ## AD HOC: Drop anything that doesn't look like a package name
+      recs <- grep(" ", recs, invert=TRUE, value=TRUE)
+      recs <- sort(unique(recs))
+      if (length(recs) > 0L) {
+        withVerbose({
+          message(sprintf("  Found %d \"recommended\" packages.\n", length(recs)))
+        })
+        recs <- recs[!isPackageInstalled(recs)]
+        if (length(recs) > 0L) {
+          message(sprintf("  Found %d \"recommended\" packages not already installed.\n", length(recs)))
+          mprint(recs)
+          message("Will try to install those as well:")
+          installer(recs, recursive=FALSE, update=FALSE)
+        }
+      }
+    }
+  } # if (recursive)
 
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

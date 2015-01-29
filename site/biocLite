@@ -148,7 +148,7 @@ hasParameter <- function(name, value=NULL) {
 
   # For logical values, allow for T, F, 1 and 0.
   if (mode(value) == "logical") {
-    param <- switch(param, T=TRUE, F=FALSE, "1"=TRUE, "0"=FALSE, as.logical(param))
+    param <- switch(as.character(param), T=TRUE, F=FALSE, "1"=TRUE, "0"=FALSE, as.logical(param))
   }
 
   (param == value)
