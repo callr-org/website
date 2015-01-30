@@ -388,7 +388,7 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=TRUE, ...) {
 
   # Set temporarily
   oopts <- options(repos=repos)
-  on.exit(options(oopts))
+  on.exit(options(oopts), add=TRUE)
 
   withVerbose({
     message("Repositories:\n")
@@ -458,6 +458,19 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=TRUE, ...) {
     message("Requested packages (with parsed flags):\n")
     mprint(pkgs)
   })
+
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Install from 'source' as well even if not specified by options
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  pkgType <- getOption("pkgType")
+  if (grepl("binary", pkgType)) {
+    msg <- sprintf("NOTE: Detected option pkgType='%s'. Changed to 'both' during this installation process in order to make sure the most up-to-date versions of packages are installed in case they are only available as source.", pkgType)
+    mcat(msg)
+    warning(msg)
+    oopts <- options(pkgType="both")
+    on.exit(options(oopts), add=TRUE)
+  }
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Install requested packages
