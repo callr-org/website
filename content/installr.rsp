@@ -1,0 +1,33 @@
+<%@string script="installr"%>
+<%@include file="incl/header.R.rsp"%>
+local({
+
+<%@include file="incl/utils.R.rsp"%>
+<%@include file="incl/installer.R"%>
+<%@include file="incl/installr.R"%>
+
+url <- parseUrl()
+tool <- url$fragment
+
+if (length(tool) == 0L) {
+  # Display usage
+  msg <- "Windows software 'installr' v1.1.0 by Henrik Bengtsson"
+  msg <- c(msg, "")
+  msg <- c(msg, "Usage:")
+  msg <- c(msg, "  source('<%=url%>#<tool>')")
+  msg <- c(msg, "")
+  msg <- c(msg, "Example:")
+  msg <- c(msg, "  source('<%=url%>#pandoc')")
+  msg <- c(msg, "")
+  msg <- c(msg, "Credits: The 'installr' R package")
+  message(paste(msg, collapse="\n"))
+} else {
+  # Install package
+  installr.install(tool)
+}
+
+withVerbose({
+  mprint(sessionInfo())
+  mprintf("pkgType=%s\n", sQuote(getOption("pkgType")))
+})
+}) # local()

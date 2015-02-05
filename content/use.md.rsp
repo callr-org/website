@@ -1,0 +1,19 @@
+## Loading packages (with automatic installation)
+
+```r
+# From CRAN
+source('http://callr.org/use#data.table')
+
+# From Bioconductor
+source('http://callr.org/use#limma')
+
+# From GitHub
+source('http://callr.org/use#rstudio/rmarkdown')
+```
+
+All missing and required packages will be installed automatically.  If a requested package is already installed and up-to-date, it will not be reinstalled.  All installed packages will be updated.
+
+You can load multiple packages by separating them with commas, e.g.
+```r
+source('http://callr.org/use#data.table,rstudio/rmarkdown')
+```

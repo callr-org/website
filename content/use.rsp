@@ -1,0 +1,36 @@
+<%@string script="use"%>
+<%@include file="incl/header.R.rsp"%>
+local({
+
+<%@include file="incl/utils.R.rsp"%>
+<%@include file="incl/installer.R"%>
+<%@include file="incl/findPackages.R"%>
+
+pkgs <- findPackages()
+
+if (nrow(pkgs) == 0L) {
+  # Display usage
+  msg <- "R package user v1.0.2 by Henrik Bengtsson"
+  msg <- c(msg, "")
+  msg <- c(msg, "Usage:")
+  msg <- c(msg, "  source('<%=url%>#<package>')")
+  msg <- c(msg, "")
+  msg <- c(msg, "Example:")
+  msg <- c(msg, "  source('<%=url%>#aroma.affymetrix')")
+  message(paste(msg, collapse="\n"))
+} else {
+  # Install package
+  if (nrow(pkgs) == 1L) {
+    msg <- "Attaching package:"
+  } else {
+    msg <- "Attaching packages:"
+  }
+  message(msg, " ", paste(sQuote(pkgs$name), collapse=", "))
+  installer(pkgs)
+}
+
+withVerbose({
+  mprint(sessionInfo())
+  mprintf("pkgType=%s\n", sQuote(getOption("pkgType")))
+})
+}) # local()

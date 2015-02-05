@@ -1,6 +1,6 @@
 all: pages site/assets
 
-pages: site/index.html site/install.html site/biocLite.html site/rfile.html site/rsource.html site/eval.html site/use.html site/debug.html
+pages: site/index.html site/install.html site/biocLite.html site/rfile.html site/rsource.html site/installr.html site/eval.html site/use.html site/debug.html
 
 site/assets: assets/* site/assets/ico/favicon.png
 	rsync -av assets/ site/assets/
@@ -15,6 +15,6 @@ site/%.html: content/%.md.rsp content/incl/* templates/*.rsp
 	if test -f $(*F); then mv $(*F) site/$*; fi
 
 beta:
-	rsync -avvz --perms --chmod=ugo+rx --progress site/ $(WEBSITE_PATH)/beta/ 
+	rsync -avvz --perms --chmod=ugo+rx --progress site/ $(WEBSITE_PATH)/beta/
 publish:
 	rsync -avvz --perms --chmod=ugo+rx --progress site/ $(WEBSITE_PATH)/

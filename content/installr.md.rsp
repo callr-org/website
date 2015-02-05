@@ -1,0 +1,13 @@
+## Installing tools with help of 'installr'
+
+The [installr] package provides function for installing external software on the _Microsoft Windows_ operating system.  This is a one-line interface to it and any package installation is automagically taken care of.
+
+```r
+# Install Pandoc
+source('http://callr.org/installr#pandoc')
+
+# Install latex2rtf
+source('http://callr.org/installr#latexrtf')
+```
+
+[installr]: http://cran.r-project.org/package=installr
