@@ -1,15 +1,33 @@
-installr.install <- function(tool=NULL, ...) {
+installr.use <- function(update=TRUE, skip=TRUE) {
+  updated <- getOption("callr.org/installr::updated", FALSE)
+  update <- update && !(skip && updated)
+
   ## Use an up-to-date version of 'installr'
-  pkg <- "installr"
-  if (!isPackageInstalled(pkg)) {
-    install.packages(pkg)
-  } else {
+  if (!isPackageInstalled("installr")) {
+    install.packages("installr")
+  } else if (update) {
     suppressWarnings({
-      update.packages(oldPkgs=pkg)
+      update.packages(oldPkgs="installr")
     })
+    options("callr.org/installr::updated"=TRUE)
   }
 
   suppressPackageStartupMessages(library("installr"))
+}
+
+installr.list <- function(update=TRUE) {
+  installr.use(update=update)
+  ns <- getNamespace("installr")
+  known <- ls(pattern="^install[.]", envir=ns)
+  known <- gsub("^install[.]", "", known)
+  known <- tolower(known)
+  known <- setdiff(known, c("packages.zip", "url"))
+  known <- sort(unique(known))
+  known
+}
+
+installr.install <- function(tool=NULL, update=TRUE, ...) {
+  installr.use(update=update)
   ns <- getNamespace("installr")
 
   ## Install from a menu?
@@ -17,17 +35,11 @@ installr.install <- function(tool=NULL, ...) {
     return(installr(use_GUI=FALSE))
   }
 
-  ## Check if it's one of the known software tools
-  known <- ls(pattern="^install[.]", envir=ns)
-  known <- sort(gsub("^install[.]", "", known))
-  if (tool == "list") {
-    message("Software tools that can be installed by 'installr':")
-    message(paste(sQuote(known), collapse=", "))
-    return(FALSE)
-  }
-
   msg <- "Installing software:"
   message(msg, " ", paste(sQuote(tool), collapse=", "))
+
+  ## Check if it's one of the known software tools
+  known <- installr.list(update=FALSE)
 
   if (!is.element(tool, known)) {
     similar <- agrep(tool, known, max.distance=0.3, fixed=TRUE, value=TRUE)

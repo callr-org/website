@@ -673,18 +673,36 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=TRUE, ...) {
     message(msg)
   }
 } # installer()
-installr.install <- function(tool=NULL, ...) {
+installr.use <- function(update=TRUE, skip=TRUE) {
+  updated <- getOption("callr.org/installr::updated", FALSE)
+  update <- update && !(skip && updated)
+
   ## Use an up-to-date version of 'installr'
-  pkg <- "installr"
-  if (!isPackageInstalled(pkg)) {
-    install.packages(pkg)
-  } else {
+  if (!isPackageInstalled("installr")) {
+    install.packages("installr")
+  } else if (update) {
     suppressWarnings({
-      update.packages(oldPkgs=pkg)
+      update.packages(oldPkgs="installr")
     })
+    options("callr.org/installr::updated"=TRUE)
   }
 
   suppressPackageStartupMessages(library("installr"))
+}
+
+installr.list <- function(update=TRUE) {
+  installr.use(update=update)
+  ns <- getNamespace("installr")
+  known <- ls(pattern="^install[.]", envir=ns)
+  known <- gsub("^install[.]", "", known)
+  known <- tolower(known)
+  known <- setdiff(known, c("packages.zip", "URL"))
+  known <- sort(unique(known))
+  known
+}
+
+installr.install <- function(tool=NULL, update=TRUE, ...) {
+  installr.use(update=update)
   ns <- getNamespace("installr")
 
   ## Install from a menu?
@@ -692,17 +710,11 @@ installr.install <- function(tool=NULL, ...) {
     return(installr(use_GUI=FALSE))
   }
 
-  ## Check if it's one of the known software tools
-  known <- ls(pattern="^install[.]", envir=ns)
-  known <- sort(gsub("^install[.]", "", known))
-  if (tool == "list") {
-    message("Software tools that can be installed by 'installr':")
-    message(paste(sQuote(known), collapse=", "))
-    return(FALSE)
-  }
-
   msg <- "Installing software:"
   message(msg, " ", paste(sQuote(tool), collapse=", "))
+
+  ## Check if it's one of the known software tools
+  known <- installr.list(update=FALSE)
 
   if (!is.element(tool, known)) {
     similar <- agrep(tool, known, max.distance=0.3, fixed=TRUE, value=TRUE)
@@ -726,13 +738,18 @@ tool <- url$fragment
 
 if (length(tool) == 0L) {
   # Display usage
-  msg <- "Windows software 'installr' v1.1.0 by Henrik Bengtsson"
+  msg <- "Windows software 'installr' v1.0.0 by Henrik Bengtsson"
   msg <- c(msg, "")
   msg <- c(msg, "Usage:")
   msg <- c(msg, "  source('http://callr.org/installr#<tool>')")
   msg <- c(msg, "")
   msg <- c(msg, "Example:")
   msg <- c(msg, "  source('http://callr.org/installr#pandoc')")
+  msg <- c(msg, "")
+  message(paste(msg, collapse="\n"))
+  known <- installr.list(update=TRUE)
+  msg <- "Software tools that can be installed this way:"
+  msg <- c(msg, paste(known, collapse=", "))
   msg <- c(msg, "")
   msg <- c(msg, "Credits: The 'installr' R package")
   message(paste(msg, collapse="\n"))

@@ -11,13 +11,18 @@ tool <- url$fragment
 
 if (length(tool) == 0L) {
   # Display usage
-  msg <- "Windows software 'installr' v1.1.0 by Henrik Bengtsson"
+  msg <- "Windows software 'installr' v1.0.0 by Henrik Bengtsson"
   msg <- c(msg, "")
   msg <- c(msg, "Usage:")
   msg <- c(msg, "  source('<%=url%>#<tool>')")
   msg <- c(msg, "")
   msg <- c(msg, "Example:")
   msg <- c(msg, "  source('<%=url%>#pandoc')")
+  msg <- c(msg, "")
+  message(paste(msg, collapse="\n"))
+  known <- installr.list(update=TRUE)
+  msg <- "Software tools that can be installed this way:"
+  msg <- c(msg, paste(known, collapse=", "))
   msg <- c(msg, "")
   msg <- c(msg, "Credits: The 'installr' R package")
   message(paste(msg, collapse="\n"))
