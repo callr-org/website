@@ -56,8 +56,8 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
 
           if (length(depsS) > 0L) {
             # Handle 'SuggestsNote' field with 'Recommended:' specially
-            recs <- grep("Recommended:[ ]*", depsS, value=TRUE)
-            recs <- gsub("Recommended:[ ]*", "", depsS)
+            recs <- grep("^(.*|)Recommended:[ ]*", depsS, value=TRUE)
+            recs <- gsub("^(.*|)Recommended:[ ]*", "", recs)
             recs <- pkgNames(recs)
             deps <- sort(unique(c(deps, recs)))
           }
