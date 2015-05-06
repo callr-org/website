@@ -618,6 +618,13 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
     suppressWarnings({
       update.packages(..., quiet=quiet, ask=update_ask)
     })
+  } else {
+    # Always try to update the requested packages
+    if (length(pkgsT$name) > 0L) {
+      suppressWarnings({
+        update.packages(oldPkgs=pkgsT$name, ..., quiet=quiet, ask=update_ask)
+      })
+    }
   }
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
