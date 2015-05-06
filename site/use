@@ -596,10 +596,11 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
       update.packages(..., quiet=quiet, ask=update_ask)
     })
   } else {
-    # Always try to update the requested packages
-    if (length(pkgsT$name) > 0L) {
+    # Always try to update the requested packages, unless installed above
+    pkgsTT <- setdiff(pkgsT$name, c(pkgsR$name, pkgsU$name, pkgsG$name))
+    if (length(pkgsTT) > 0L) {
       suppressWarnings({
-        update.packages(oldPkgs=pkgsT$name, ..., quiet=quiet, ask=update_ask)
+        update.packages(oldPkgs=pkgsTT, ..., quiet=quiet, ask=update_ask)
       })
     }
   }
