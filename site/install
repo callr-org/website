@@ -285,7 +285,7 @@ appendToHistory <- function(cmds, verbose=FALSE) {
     message(msg)
   }
 } # appendToHistory()
-installer <- function(pkgs=NULL, recursive=FALSE, update=TRUE, ...) {
+installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Local functions
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

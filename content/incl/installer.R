@@ -1,4 +1,4 @@
-installer <- function(pkgs=NULL, recursive=FALSE, update=TRUE, ...) {
+installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Local functions
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

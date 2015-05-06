@@ -3,8 +3,11 @@ printCode <- function(name, class=NULL, mode="function", envir=NULL, ...) {
   if (is.character(envir)) envir <- getNamespace(envir)
   obj <- get(fullname, mode=mode, envir=envir)
   attributes(obj) <- NULL
-  environment(obj) <- parent.frame()
-  print(obj)
+  output <- capture.output(print(obj, useSource=TRUE))
+  if (length(output) == 0) return(output)
+  idxs <- grep("<environment:", output, fixed=TRUE)
+  if (length(idxs) > 0L) output <- output[1:(idxs[1]-1)]
+  cat(output, sep="\n")
 } # printCode()
 
 # HISTORY:
