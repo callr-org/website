@@ -282,6 +282,16 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
     a <- .read_repositories(p)
     repos <- a$URL
     names(repos) <- rownames(a)
+
+    ## WORKAROUND: RCurl 1.96.0 is buggy / HB 2015-05-08
+    ## Don't install from Omegahat, because it provides
+    ## RCurl 1.96.0 (1.95-4.6 is on CRAN), which despite
+    ## installing properly, causes httr::GET() -> ... ->
+    ## RCurl::curlPerform() to core dump R.
+    names <- names(repos)
+    names <- setdiff(names, "Omegahat")
+    repos <- repos[names]
+
     repos
   } # knownRepos()
 
@@ -516,6 +526,22 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
       if (!isPackageInstalled("devtools")) {
         install.packages("devtools", quiet=quiet, ...)
       }
+
+      ## WORKAROUND: RCurl 1.96.0 is buggy / HB 2015-05-08
+      ## Don't install from Omegahat, because it provides
+      ## RCurl 1.96.0 (1.95-4.6 is on CRAN), which despite
+      ## installing properly, causes httr::GET() -> ... ->
+      ## RCurl::curlPerform() to core dump R.
+      if (isPackageInstalled("RCurl")) {
+        v <- packageVersion("RCurl")
+        if (v >= "1.96.0") {
+          repos <- getOption("repos")["CRAN"]
+          if (is.null(repos) || is.na(repos)) repos <- "@CRAN@"
+          mprintf("** WORKAROUND: Detected RCurl %s, which indirectly causes devtools::install_github() to core dump R. This faulty version was probably installed from Omegahat and not CRAN. Reinstalling RCurl from CRAN ...\n", v)
+          install.packages("RCurl", repos=repos)
+        }
+      }
+
       # Install one by one
       for (kk in seq_len(nrow(pkgsG))) {
         pkg <- pkgsG[kk,]
