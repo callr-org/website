@@ -446,7 +446,7 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
   # Install from 'source' as well even if not specified by options
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   pkgType <- getOption("pkgType")
-  if (grepl("binary", pkgType) && getRversion() < "3.1.3") {
+  if (grepl("binary", pkgType) && getRversion() >= "3.1.3") {
     msg <- sprintf("NOTE: Detected option pkgType='%s'. Temporarily changed to 'both' during this installation process in order to make sure the most up-to-date versions of packages are installed in case they are only available as source.", pkgType)
     mcat(msg)
     warning(msg)
@@ -737,6 +737,10 @@ findPackages <- function() {
   pkgs <- sapply(pkgs, FUN=`[[`, "name")
   pkgnames <- gsub(".*/", "", pkgs)
   pkgnames <- gsub("[@#].*", "", pkgnames)
+
+  ## Example: 'R.cache_0.10.0.tar.gz'
+  pkgnames <- gsub("_[0-9]+.*", "", pkgnames)
+
   pkgs <- data.frame(name=I(pkgnames), fullname=I(pkgs))
   pkgs$flags <- flags
   pkgs <- subset(pkgs, nzchar(name))
