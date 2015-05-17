@@ -18,4 +18,3 @@ You can install multiple packages by separating them with commas, e.g.
 ```r
 source('http://callr.org/install#knitr,rstudio/rmarkdown')
 ```
-

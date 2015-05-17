@@ -95,15 +95,10 @@ captureOutput <- function (expr, file = NULL, append = FALSE, collapse = NULL,
             capture.output(expr, file = file, append = append)
         }, envir = envir, enclos = envir)
     }
-    if (is.null(collapse)) {
-        res <- unlist(strsplit(res, split = "\n", fixed = TRUE), 
-            use.names = FALSE)
-    }
-    else if (collapse != "\n") {
-        res <- unlist(strsplit(res, split = "\n", fixed = TRUE), 
-            use.names = FALSE)
+    res <- unlist(strsplit(res, split = "\n", fixed = TRUE), 
+        use.names = FALSE)
+    if (!is.null(collapse)) 
         res <- paste(res, collapse = collapse)
-    }
     res
 }
 mprint <- function (..., appendLF = FALSE) 

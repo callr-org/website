@@ -187,8 +187,8 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
   # Install from 'source' as well even if not specified by options
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   pkgType <- getOption("pkgType")
-  if (grepl("binary", pkgType)) {
-    msg <- sprintf("NOTE: Detected option pkgType='%s'. Changed to 'both' during this installation process in order to make sure the most up-to-date versions of packages are installed in case they are only available as source.", pkgType)
+  if (grepl("binary", pkgType) && getRversion() >= "3.1.3") {
+    msg <- sprintf("NOTE: Detected option pkgType='%s'. Temporarily changed to 'both' during this installation process in order to make sure the most up-to-date versions of packages are installed in case they are only available as source.", pkgType)
     mcat(msg)
     warning(msg)
     oopts <- options(pkgType="both")
