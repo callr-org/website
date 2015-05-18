@@ -96,11 +96,12 @@ git_svn <- function(url, path=NULL, authors=NULL, ...) {
                           sprintf("--trunk=%s", url))
   git("svn", "fetch", sprintf("--authors-file=%s", tmpauth))
   git("gc")
-  mcat("SVN-to-Git export completed.\n\n")
 
+  mcat("\n\nThe 3 most recent commits:\n")
   log <- git("log", "-3")
-  mcat("The 3 most recent commits:\n")
   mcat(log, sep="\n")
+
+  mcat("\nSVN-to-Git export completed.\n\n")
 }
 
 
@@ -131,7 +132,8 @@ rpkg_svn2git <- function(pkg, from=NULL, ...) {
 
   ## URL for the SVN repository
   if (repos == "bioc-devel") {
-    svnURL <- sprintf("https://hedgehog.fhcrc.org/bioconductor/trunk/madman/Rpacks/%s", pkg)
+    package <- pkg
+    svnURL <- sprintf("https://hedgehog.fhcrc.org/bioconductor/trunk/madman/Rpacks/%s", package)
   } else if (repos == "r-forge") {
     project <- gsub("(.*)/(.*)", "\\1", pkg)
     package <- gsub("(.*)/(.*)", "\\2", pkg)
