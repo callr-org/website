@@ -11,4 +11,15 @@ source('http://callr.org/svn2git#bioc-devel:aroma.light')
 
 The Git repository will be created in a separate subdirectory of the current working directory.
 
+If you see error _"Author: henkebenke not defined in .svn2git_authorsfile.txt file"_, it means that the email address and full name for SVN user 'henkebenke' is unknown.  You can resolve this by adding this information to the `.gitauthors` file (see below).  To resume, just recall 'svn2git' (above).
 
+
+### SVN-to-Git authors file
+SVN commits are attributed to an author by a `user` name (e.g. `joe`), whereas in Git they are attributed by an `email` address (e.g. `john@example.com`) and the full `name` (e.g. `John Surfer`).  In order for the SVN-to-Git export to work, you need to provide a `.gitauthors` file (you can put it in either the working directory or the home directory) providing the mapping for _all SVN authors_ in the [following format](http://git-scm.com/docs/git-svn), e.g.
+```
+joe = John Surfer <john@example.com>
+sara = Sara Glider <sara@user.callr.org>
+```
+We automatically provide the mapping for common R-Forge and Bioconductor maintainers, which might have made commits to your repository, so you don't have to worry about those.
+
+_Important: You probably want to ask the SVN users what Git email address they wish to be associated with the commits in the Git history.  For instance, if you plan to put the Git repository on GitHub, the it is preferred to use user's GitHub email address (one of the associated ones) - this way the commit will be associated with the proper GitHub user and it will be clear that the user has [contributed to](https://github.com/HenrikBengtsson/illuminaio/graphs/contributors) your repository.

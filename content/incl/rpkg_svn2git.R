@@ -55,18 +55,34 @@ git_svn_authors_known <- function() {
   c(git_svn_authors_r_forge(), git_svn_authors_bioc())
 }
 
-git_svn_authorsfile <- function() {
+git_svn_config_authorsfile <- function(mustWork=FALSE) {
   pathname <- git("config", "svn.authorsfile")
   status <- attr(pathname, "status")
-  if (!is.null(status))
+  if (!is.null(status)) {
+    if (!mustWork) return(NULL)
     stop("The git svn authors file not set, e.g. git config --global svn.authorsfile ~/.gitauthors")
-  if (!file_test("-f", pathname))
-    stop("The git svn authors file not found: ", pathname)
+  }
+  if (!file_test("-f", pathname)) {
+    if (!mustWork) return(NULL)
+    stop("The git svn authors file as specified by 'git config svn.authorsfile' not found: ", pathname)
+  }
   pathname
 }
 
-git_svn_authors <- function(authors=NULL) {
-  if (is.null(authors)) authors <- readLines(git_svn_authorsfile())
+git_svn_authorsfiles <- function(mustWork=TRUE) {
+  pathname <- git_svn_config_authorsfile(mustWork=FALSE)
+  pathnames <- file.path(c(".", "~"), ".gitauthors")
+  pathnames <- c(pathname, pathnames)
+  pathnames <- pathnames[file_test("-f", pathnames)]
+  if (mustWork && length(pathnames) == 0L) {
+    stop(sprintf("Unless specified via 'git config svn.authorsfile' (which it is not), svn2git requires at least one '.gitauthors' file in either the current working directory (%s) or the home directory (%s).", getwd(), normalizePath("~", winslash="/")))
+  }
+  pathnames <- normalizePath(pathnames, winslash="/", mustWork=TRUE)
+  pathnames <- unique(pathnames)
+  pathnames
+}
+
+git_svn_authors <- function(authors) {
   authors <- grep("^[ ]*#", authors, invert=TRUE, value=TRUE)
   authors <- trim(authors)
   authors <- authors[nzchar(authors)]
@@ -94,7 +110,7 @@ git_svn <- function(url, path=NULL, authors=NULL, ...) {
 
   if (is.data.frame(authors) && nrow(authors) > 0L) {
     # Create authors file
-    authfile <- ".svn2git_git_svn_authorsfile.txt"
+    authfile <- ".svn2git_authorsfile.txt"
     bfr <- sprintf("%s = %s <%s>", authors$user, authors$name, authors$email)
     writeLines(bfr, con=authfile)
     fetch_args <- sprintf("--authors-file=%s", authfile)
@@ -135,7 +151,9 @@ rpkg_svn2git <- function(pkg, from=NULL, ...) {
   }
 
   ## Build authors map
-  authors_local <- readLines(git_svn_authorsfile())
+  pathnames <- git_svn_authorsfiles(mustWork=TRUE)
+  authors_local <- lapply(pathnames, FUN=readLines, warn=FALSE)
+  authors_local <- unlist(authors_local, use.names=FALSE)
   authors_known <- git_svn_authors_known()
   authors <- git_svn_authors(c(authors_known, authors_local))
   mcat("svn-to-git map of authors:\n")
