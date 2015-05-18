@@ -83,16 +83,18 @@ git_svn <- function(url, path=NULL, authors=NULL, ...) {
   }
 
   if (is.data.frame(authors) && nrow(authors) > 0L) {
-    # Write temporary authors file
-    tmpauth <- tempfile("git_svn_authorsfile_", tmpdir=getwd(), fileext=".txt")
-    on.exit(file.remove(tmpauth), add=TRUE)
+    # Create authors file
+    authfile <- ".svn2git_git_svn_authorsfile.txt"
     bfr <- sprintf("%s = %s <%s>", authors$user, authors$name, authors$email)
-    writeLines(bfr, con=tmpauth)
+    writeLines(bfr, con=authfile)
+    fetch_args <- sprintf("--authors-file=%s", authfile)
+  } else {
+    fetch_args <- NULL
   }
 
   git("svn", "init", "--prefix=svn/", "--no-metadata",
                           sprintf("--trunk=%s", url))
-  git("svn", "fetch", sprintf("--authors-file=%s", tmpauth))
+  git("svn", "fetch", fetch_args)
   git("gc")
 
   mcat("\n\nThe 3 most recent commits:\n")
