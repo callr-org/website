@@ -22,6 +22,9 @@ findPackages <- function() {
     } else if (regexpr("[^/]+[/][^/]+", pkg) != -1) {
       # Install from GitHub? (and force it)
       flags <- c(flags, "G", "!")
+    } else if (regexpr("@+", pkg) != -1) {
+      # User error?
+      stop(sprintf("Hmm... I see an '@' symbol; did you indent to install from GitHub but forgot to specify the GitHub user/organisation name, e.g. <user/organisation>/%s ?", pkg), call.=FALSE)
     } else {
       # Install from repositories (default)
     }
