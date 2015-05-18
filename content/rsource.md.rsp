@@ -6,4 +6,4 @@
 source('http://callr.org/rsource#https://raw.github.com/HenrikBengtsson/R.rsp/master/inst/rsp_LoremIpsum/LoremIpsum.md.rsp')
 ```
 
-All required packages will automatically be install, if missing.
+All required packages will automatically be installed, if missing.

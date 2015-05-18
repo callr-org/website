@@ -4,4 +4,4 @@
 source('http://callr.org/eval#x=rnorm(1000); !R.devices::toPNG("histogram", hist(x))')
 ```
 
-All required packages will automatically be install, if missing.
+All required packages will automatically be installed, if missing.
