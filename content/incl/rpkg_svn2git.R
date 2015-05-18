@@ -56,8 +56,6 @@ git_svn_authorsfile <- function() {
 }
 
 git_svn_authors <- function(authors=NULL) {
-  trim <- function(x) gsub("(^[ \t]+|[ \t]+$)", "", x)
-
   if (is.null(authors)) authors <- readLines(git_svn_authorsfile())
   authors <- grep("^[ ]*#", authors, invert=TRUE, value=TRUE)
   authors <- trim(authors)
