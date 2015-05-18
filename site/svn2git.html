@@ -55,7 +55,7 @@ source(&#39;http://callr.org/svn2git#bioc-devel:aroma.light&#39;)
 
 <h3>SVN-to-Git authors file</h3>
 
-<p>SVN commits are attributed to an author by a <code>user</code> name (e.g. <code>joe</code>), whereas in Git they are attributed by an <code>email</code> address (e.g. <code>john@example.com</code>) and the full <code>name</code> (e.g. <code>John Surfer</code>).  In order for the SVN-to-Git export to work, you need to provide a <code>.gitauthors</code> file (you can put it in either the working directory or the home directory) providing the mapping for <em>all SVN authors</em> in the <a href="http://git-scm.com/docs/git-svn">following format</a>, e.g.</p>
+<p>SVN commits are attributed to an author by a <code>user</code> name (e.g. &#39;joe&#39;), whereas in Git they are attributed by an <code>email</code> address (e.g. &#39;john<span>@</span>example.com&#39;) and the full <code>name</code> (e.g. &#39;John Surfer&#39;).  In order for the SVN-to-Git export to work, you need to provide a <code>.gitauthors</code> file (you can put it in either the working directory or the home directory) providing the mapping for <em>all SVN authors</em> in the <a href="http://git-scm.com/docs/git-svn">following format</a>, e.g.</p>
 
 <pre><code>joe = John Surfer &lt;john@example.com&gt;
 sara = Sara Glider &lt;sara@user.callr.org&gt;
@@ -63,7 +63,7 @@ sara = Sara Glider &lt;sara@user.callr.org&gt;
 
 <p>We automatically provide the mapping for common R-Forge and Bioconductor maintainers, which might have made commits to your repository, so you don&#39;t have to worry about those.</p>
 
-<p>_Important: You probably want to ask the SVN users what Git email address they wish to be associated with the commits in the Git history.  For instance, if you plan to put the Git repository on GitHub, the it is preferred to use user&#39;s GitHub email address (one of the associated ones) - this way the commit will be associated with the proper GitHub user and it will be clear that the user has <a href="https://github.com/HenrikBengtsson/illuminaio/graphs/contributors">contributed to</a> your repository.</p>
+<p><em>Important: You probably want to ask the SVN users what Git email address they wish to be associated with the commits in the Git history.</em>  For instance, if you plan to put the Git repository on GitHub, then it is preferred to use user&#39;s GitHub email address (one of the associated ones).  This way the commit will be associated with the proper GitHub user and it will be clear that the user has <a href="https://github.com/HenrikBengtsson/illuminaio/graphs/contributors">contributed to</a> your repository.</p>
 
 
 </div>
