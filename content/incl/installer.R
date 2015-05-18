@@ -415,31 +415,33 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
       message(msg)
     }
   } else {
-    # Add library() commands to the R command line history
-    cmds <- sprintf("library('%s')", pkgs$name)
-    inHistory <- tryCatch({
-      tf <- tempfile(pattern=".Rhistory-")
-      savehistory(tf)
-      hist <- readLines(tf)
-      cmdAll <- paste(cmds, collapse="; ")
-      hist <- c(hist, cmdAll)
-      writeLines(con=tf, hist)
-      loadhistory(tf)
-      TRUE
-    }, error = function(ex) { FALSE })
+    msg <- if (nrow(pkgs) == 1L) "Package" else "Packages"
+    msg <- sprintf("%s installed/updated.", msg)
 
-    if (nrow(pkgs) == 1L) {
-      msg <- "Package installed/updated. Load it by:"
-    } else {
-      msg <- "Packages installed/updated. Load them by:"
+    if (interactive()) {
+      # Add library() commands to the R command line history
+      tryCatch({
+        tf <- tempfile(pattern=".Rhistory-")
+        savehistory(tf)
+        hist <- readLines(tf)
+        cmds <- sprintf("library('%s')", pkgs$name)
+        cmdAll <- paste(cmds, collapse="; ")
+        hist <- c(hist, cmdAll)
+        writeLines(con=tf, hist)
+        loadhistory(tf)
+
+        msg <- c(
+          sprintf("%s Load %s by:\n", msg,
+                  if (nrow(pkgs) == 1L) "it" else "them"),
+          "",
+          sprintf(" %s", cmds),
+          "",
+          "(These commands have been added to your commands history.)"
+        )
+      }, error = function(ex) {})
     }
-    vers <- sapply(pkgs$name, FUN=packageVersion)
-    msg <- c(msg, "", sprintf(" %s", cmds))
-    msg <- c("", msg, "")
-    if (inHistory) {
-      msg <- c(msg, "(These commands have been added to your commands history.)",  "")
-    }
-    msg <- paste(msg, collapse="\n")
+
+    msg <- paste(c("", msg), collapse="\n")
     message(msg)
   }
 } # installer()
