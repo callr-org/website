@@ -289,11 +289,21 @@ findURIs <- function() {
 
   uris
 } # findURIs()
-git <- function(...) {
+git <- function(..., mustWork=FALSE) {
   args <- c(...)
   bin <- Sys.which("git")
   stopifnot(nchar(bin) > 0L)
-  system2(bin, args=args, stdout=TRUE)
+  res <- system2(bin, args=args, stdout=TRUE)
+
+  if (mustWork) {
+    status <- attr(res, "status")
+    if (is.numeric(status) && status != 0) {
+      stop(sprintf("Error (code=%d) while calling 'git %s'.",
+                   status, paste(args, collapse=" ")))
+    }
+  }
+
+  res
 }
 
 git_version <- function() {
@@ -340,7 +350,7 @@ git_svn_authorsfile <- function() {
   pathname <- git("config", "svn.authorsfile")
   status <- attr(pathname, "status")
   if (!is.null(status))
-    stop("The git svn authors file not set, e.g. git config --global svn.authorsfile ~.gitauthors")
+    stop("The git svn authors file not set, e.g. git config --global svn.authorsfile ~/.gitauthors")
   if (!file_test("-f", pathname))
     stop("The git svn authors file not found: ", pathname)
   pathname
@@ -384,15 +394,16 @@ git_svn <- function(url, path=NULL, authors=NULL, ...) {
   }
 
   git("svn", "init", "--prefix=svn/", "--no-metadata",
-                          sprintf("--trunk=%s", url))
-  git("svn", "fetch", fetch_args)
+                          sprintf("--trunk=%s", url), mustWork=TRUE)
+  git("svn", "fetch", fetch_args, mustWork=TRUE)
   git("gc")
 
   mcat("\n\nThe 3 most recent commits:\n")
   log <- git("log", "-3")
   mcat(log, sep="\n")
 
-  mcat("\nSVN-to-Git export completed.\n\n")
+  mcat("\nSVN-to-Git export completed.\n")
+  mprintf("Path to local Git repository: %s\n\n", getwd())
 }
 
 
