@@ -1,0 +1,14 @@
+## SVN-to-Git
+
+Export remote R-Forge or Bioc-devel Subversion (SVN) repository to a local Git repository.
+```r
+# R-Forge
+source('http://callr.org/svn2git#r-forge:r-dots/R.cache')
+
+# Bioconductor devel
+source('http://callr.org/svn2git#bioc-devel:aroma.light')
+```
+
+The Git repository will be created in a separate subdirectory of the current working directory.
+
+

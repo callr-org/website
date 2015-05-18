@@ -1,0 +1,27 @@
+<%@string script="svn2git"%>
+<%@include file="incl/header.R.rsp"%>
+local({
+
+<%@include file="incl/utils.R.rsp"%>
+<%@include file="incl/findURIs.R"%>
+<%@include file="incl/rpkg_svn2git.R"%>
+
+uri <- findURIs()
+if (length(uri) != 1L) {
+  # Display usage
+  msg <- "svn2git v1.0.0 by Henrik Bengtsson"
+  msg <- c(msg, "")
+  msg <- c(msg, "Usage:")
+  msg <- c(msg, "  source('<%=url%>#<uri>')")
+  msg <- c(msg, "")
+  msg <- c(msg, "Example:")
+  msg <- c(msg, "  source('<%=url%>#r-forge:r-dots/R.menu')")
+  message(paste(msg, collapse="\n"))
+} else {
+  # Install package
+  msg <- "Exporting SVN repository to local Git repository:"
+  message(msg, " ", sQuote(uri))
+  rpkg_svn2git(uri)
+}
+
+}) # local()

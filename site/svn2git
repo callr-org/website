@@ -1,0 +1,460 @@
+######################################################################
+# See http://callr.org/svn2git.html for help.
+#
+# This script is part of the http://callr.org suite.
+# It was dynamically generated from a set of RSP templates,
+# which are available at https://github.com/callr-org/.
+#
+# License: GPL (>= 2.1)
+# Copyright: Henrik Bengtsson
+######################################################################
+
+
+local({
+
+localenv <- environment()
+
+trim <- function (object, ...) 
+{
+    s <- sub("^[\t\n\f\r ]*", "", as.character(object))
+    s <- sub("[\t\n\f\r ]*$", "", s)
+    s
+}
+
+
+
+isPackageInstalled <- function (package, ...) 
+{
+    suppressWarnings({
+        paths <- sapply(package, FUN = function(p) system.file(package = p))
+    })
+    (paths != "")
+}
+
+findSourceTraceback <- function (...) 
+{
+    argsToFind <- names(formals(source))
+    srcfileList <- list()
+    for (ff in sys.nframe():0) {
+        env <- sys.frame(ff)
+        exist <- sapply(argsToFind, FUN = exists, envir = env, 
+            inherits = FALSE)
+        if (!all(exist)) {
+            next
+        }
+        srcfile <- get("srcfile", envir = env, inherits = FALSE)
+        if (!is.null(srcfile)) {
+            if (!is.function(srcfile)) {
+                srcfileList <- c(srcfileList, list(srcfile))
+            }
+        }
+    }
+    pathnames <- sapply(srcfileList, FUN = function(srcfile) {
+        if (inherits(srcfile, "srcfile")) {
+            pathname <- srcfile$filename
+        }
+        else if (is.environment(srcfile)) {
+            pathname <- srcfile$filename
+        }
+        else if (is.character(srcfile)) {
+            pathname <- srcfile
+        }
+        else {
+            pathname <- NA_character_
+            warning("Unknown class of 'srcfile': ", class(srcfile)[1L])
+        }
+        pathname
+    })
+    names(srcfileList) <- pathnames
+    srcfileList
+}
+
+
+captureOutput <- function (expr, file = NULL, append = FALSE, collapse = NULL, 
+    envir = parent.frame()) 
+{
+    if (is.null(file)) 
+        file <- raw(0L)
+    if (identical(file, character(0L))) 
+        file <- NULL
+    if (is.raw(file)) {
+        res <- eval({
+            file <- rawConnection(raw(0L), open = "w")
+            on.exit({
+                if (!is.null(file)) close(file)
+            })
+            capture.output(expr, file = file)
+            res <- rawConnectionValue(file)
+            close(file)
+            file <- NULL
+            res <- rawToChar(res)
+            res
+        }, envir = envir, enclos = envir)
+    }
+    else {
+        res <- eval({
+            capture.output(expr, file = file, append = append)
+        }, envir = envir, enclos = envir)
+    }
+    res <- unlist(strsplit(res, split = "\n", fixed = TRUE), 
+        use.names = FALSE)
+    if (!is.null(collapse)) 
+        res <- paste(res, collapse = collapse)
+    res
+}
+mprint <- function (..., appendLF = FALSE) 
+{
+    bfr <- captureOutput(print(...), envir = parent.frame())
+    bfr <- paste(c(bfr, ""), collapse = "\n")
+    message(bfr, appendLF = appendLF)
+}
+mcat <- function (..., appendLF = FALSE) 
+{
+    bfr <- captureOutput(cat(...), envir = parent.frame())
+    bfr <- paste(c(bfr, ""), collapse = "\n")
+    message(bfr, appendLF = appendLF)
+}
+mstr <- function (..., appendLF = FALSE) 
+{
+    bfr <- captureOutput(str(...), envir = parent.frame())
+    bfr <- paste(c(bfr, ""), collapse = "\n")
+    message(bfr, appendLF = appendLF)
+}
+mprintf <- function (..., appendLF = FALSE) 
+{
+    bfr <- sprintf(...)
+    message(bfr, appendLF = appendLF)
+}
+
+withVerbose <- function(expr, ..., envir=parent.frame()) {
+  if (hasParameter("verbose", TRUE)) {
+    eval(expr, envir=envir)
+  }
+  invisible()
+} # withVerbose()
+
+
+hasParameter <- function(name, value=NULL) {
+  params <- getOption("parameters", NULL)
+  if (!is.element(name, names(params))) return(FALSE)
+  if (is.null(value)) return(TRUE)
+
+  # Check if parameter has the requested value
+  param <- params[[name]]
+
+  # For logical values, allow for T, F, 1 and 0.
+  if (mode(value) == "logical") {
+    param <- switch(as.character(param), T=TRUE, F=FALSE, "1"=TRUE, "0"=FALSE, as.logical(param))
+  }
+
+  (param == value)
+} # hasParameter()
+
+
+hasUrlProtocol <- function (pathname, ...) 
+{
+    pattern <- "^([abcdefghijklmnopqrstuvwxyz]+)(://.*)"
+    (regexpr(pattern, pathname) != -1)
+}
+
+
+# Parse URL
+splitUrl <- function(url, ...) {
+  stopifnot(length(url) == 1L)
+  if (!hasUrlProtocol(url)) stop("Not a valid URL: ", url)
+
+  # Get the protocol
+  pattern <- "^([abcdefghijklmnopqrstuvwxyz]+)(://)(.*)"
+  protocol <- gsub(pattern, "\\1", url, ignore.case=TRUE)
+  tail <- gsub(pattern, "\\3", url, ignore.case=TRUE)
+
+  # Allocate results
+  res <- list(
+    url=url,
+    protocol=protocol,
+    hierarchical_part=NULL,
+    host=NULL, path=NULL,
+    query=NULL, query_parsed=NULL,
+    fragment=NULL
+  )
+
+  # hierarchical_part
+  pos <- regexpr("[?#]", tail)
+  if (pos != -1L) {
+    sep <- substring(tail, first=pos, last=pos)
+    res$hierarchical_part <- substring(tail, first=1L, last=pos-1L)
+    tail <- substring(tail, first=pos+1L)
+  } else {
+    res$hierarchical_part <- tail
+    tail <- ""
+    sep <- NULL
+  }
+
+  # Get the host and the path
+  parts <- strsplit(res$hierarchical_part, split="/", fixed=TRUE)[[1L]]
+  if (length(parts) > 0L) {
+    res$host <- parts[1L]
+    res$path <- paste(parts[-1L], collapse="/")
+  } else {
+    res$host <- NULL
+    res$path <- res$hierarchical_part
+  }
+
+  # Done?
+  if (nchar(tail) == 0L) {
+    return(res)
+  }
+
+  if (sep == "?") {
+    # Get the query then fragments
+    res$query <- gsub("#.*", "", tail)
+    res$fragment <- gsub(".*#", "", tail)
+  } else if (sep == "#") {
+    res$fragment <- gsub("[?].*", "", tail)
+    res$query <- gsub(".*[?]", "", tail)
+  }
+
+  # Parse query
+  if (length(res$query) > 0L) {
+    parts <- strsplit(res$query, split="&", fixed=TRUE)[[1L]]
+    if (length(parts) > 0L) {
+      parts <- strsplit(parts, split="=", fixed=TRUE)
+      names <- unlist(lapply(parts, FUN=function(x) x[1L]), use.names=FALSE)
+      args <- lapply(parts, FUN=function(x) paste(x[-1L], collapse="="))
+      names(args) <- names
+      res$query_parsed <- args
+    }
+  }
+
+  res
+} # splitUrl()
+
+parseUrl <- function() {
+  # Don't assume 'utils' is attached
+  URLdecode <- utils::URLdecode
+
+  url <- getOption("debug_url")
+  if (is.null(url)) {
+    # Find all URL calls
+    urls <- names(findSourceTraceback())
+    pattern <- "^([abcdefghijklmnopqrstuvwxyz]+)(://)(.*)"
+    urls <- grep(pattern, urls, value=TRUE)
+
+    # Nothing found?
+    if (length(urls) == 0L) return(list())
+
+    # Use the most first one
+    url <- urls[1L]
+  }
+
+  # Parse URL
+  res <- splitUrl(url)
+
+  # Set URL parameters globally
+  options(parameters=res$query_parsed)
+
+  res
+} # parseUrl()
+
+
+gist_to_url <- function(url) {
+  pattern <- "^gist://(.*)/(.*)/(.*)"
+  if (regexpr(pattern, url) == -1L) return(url)
+  gsub(pattern, "https://gist.githubusercontent.com/\\1/\\2/raw/\\3", url)
+}
+
+url_to_gist <- function(url) {
+  pattern <- "^https://gist.githubusercontent.com/(.*)/(.*)/raw/(.*)"
+  if (regexpr(pattern, url) == -1L) return(url)
+  gsub(pattern, "gist://\\1/\\2/\\3", url)
+}
+
+findURIs <- function() {
+  # Don't assume 'utils' is attached
+  URLdecode <- utils::URLdecode
+
+  url <- parseUrl()
+  uris <- url$fragment
+
+  # Nothing to do?
+  if (length(uris) == 0L) {
+    return(character(0L))
+  }
+
+  uris <- URLdecode(uris)
+  uris <- unlist(strsplit(uris, split="[,#]"))
+
+  # Translater gist:// URIs
+  uris <- sapply(uris, FUN=gist_to_url)
+
+  uris
+} # findURIs()
+git <- function(...) {
+  args <- c(...)
+  bin <- Sys.which("git")
+  stopifnot(nchar(bin) > 0L)
+  system2(bin, args=args, stdout=TRUE)
+}
+
+git_version <- function() {
+  ver <- tryCatch({
+    ver <- git("--version")
+    ver <- gsub("(git|version|msysgit.*)", "", ver)
+    ver <- gsub("(^[ ]+|[ .]+$)", "", ver)
+    numeric_version(ver)
+  }, error = function(ex) numeric_version("0.0.0"))
+  ver
+}
+
+git_svn_authors_r_forge <- function() {
+  # R-Forge admins
+  authors <- c(
+    "mpacala = Martin Pacala <mpacala[SPAM-at-SPAM]wu.ac.at>",
+    "stefan7th = Stefan Theuss <stefan.theussl[SPAM-at-SPAM]R-project.org>"
+  )
+  gsub("[SPAM-at-SPAM]", "@", authors, fixed=TRUE)
+}
+
+git_svn_authors_bioc <- function() {
+  # Bioconductor admins
+  authors <- c(
+    "hpages[SPAM-at-SPAM]fhcrc.org = Hervé Pagès <hpages[SPAM-at-SPAM]fhcrc.org>",
+    "p.aboyoun = Patrick Aboyoun <paboyoun[SPAM-at-SPAM]fhcrc.org>",
+    "n.gopalakrishnan = Nishant Gopalakrishnan <ngopalak[SPAM-at-SPAM]fhcrc.org>",
+    "c.wong = Chao-Jen Wong <cwon2[SPAM-at-SPAM]fhcrc.org>",
+    "d.tenenbaum = Dan Tenenbaum <dtenenba[SPAM-at-SPAM]fhcrc.org>",
+    "mtmorgan[SPAM-at-SPAM]fhcrc.org = Martin Morgan <mtmorgan[SPAM-at-SPAM]fhcrc.org>",
+    "sethf = Seth Falcon <seth[SPAM-at-SPAM]userprimary.net>",
+    "tliu[SPAM-at-SPAM]fhcrc.org = Ting-Yuan Liu <tliu[SPAM-at-SPAM]fhcrc.org>",
+    "rgentlem = Robert Gentleman <rgentlem[SPAM-at-SPAM]fhcrc.org>",
+    "m.carlson = Mark Carlson <mcarlson[SPAM-at-SPAM]fhcrc.org>"
+  )
+  gsub("[SPAM-at-SPAM]", "@", authors, fixed=TRUE)
+}
+
+git_svn_authors_known <- function() {
+  c(git_svn_authors_r_forge(), git_svn_authors_bioc())
+}
+
+git_svn_authorsfile <- function() {
+  pathname <- git("config", "svn.authorsfile")
+  status <- attr(pathname, "status")
+  if (!is.null(status))
+    stop("The git svn authors file not set, e.g. git config --global svn.authorsfile ~.gitauthors")
+  if (!file_test("-f", pathname))
+    stop("The git svn authors file not found: ", pathname)
+  pathname
+}
+
+git_svn_authors <- function(authors=NULL) {
+  trim <- function(x) gsub("(^[ \t]+|[ \t]+$)", "", x)
+
+  if (is.null(authors)) authors <- readLines(git_svn_authorsfile())
+  authors <- grep("^[ ]*#", authors, invert=TRUE, value=TRUE)
+  authors <- trim(authors)
+  authors <- authors[nzchar(authors)]
+  authors <- sort(unique(authors))
+  pattern <- "(.*)[ \t]*=[ \t]*(.+)[<](.*)[>]"
+  unknown <- grep(pattern, authors, invert=TRUE, value=TRUE)
+  if (length(unknown) > 0) {
+    stop("Malformed entry in authors file: ", unknown[1])
+  }
+  user <- trim(gsub(pattern, "\\1", authors))
+  name <- trim(gsub(pattern, "\\2", authors))
+  email <- trim(gsub(pattern, "\\3", authors))
+
+  data.frame(user=user, email=email, name=name)
+}
+
+git_svn <- function(url, path=NULL, authors=NULL, ...) {
+  ## Change working directory?
+  if (!is.null(path)) {
+    if (!file_test("-d", path)) dir.create(path, recursive=TRUE)
+    opwd <- getwd()
+    on.exit(setwd(opwd))
+    setwd(path)
+  }
+
+  if (is.data.frame(authors) && nrow(authors) > 0L) {
+    # Write temporary authors file
+    tmpauth <- tempfile("git_svn_authorsfile_", tmpdir=getwd(), fileext=".txt")
+    on.exit(file.remove(tmpauth), add=TRUE)
+    bfr <- sprintf("%s = %s <%s>", authors$user, authors$name, authors$email)
+    writeLines(bfr, con=tmpauth)
+  }
+
+  git("svn", "init", "--prefix=svn/", "--no-metadata",
+                          sprintf("--trunk=%s", url))
+  git("svn", "fetch", sprintf("--authors-file=%s", tmpauth))
+  git("gc")
+  mcat("SVN-to-Git export completed.\n\n")
+
+  log <- git("log", "-3")
+  mcat("The 3 most recent commits:\n")
+  mcat(log, sep="\n")
+}
+
+
+rpkg_svn2git <- function(pkg, from=NULL, ...) {
+  pkg <- as.character(pkg)
+  stopifnot(length(pkg) == 1L, grepl("(.*):(.*)", pkg))
+  if (!is.null(from)) from <- as.integer(from)
+
+  ## Parse package specification
+  repos <- tolower(gsub("(.*):(.*)", "\\1", pkg))
+  if (!is.element(repos, c("bioc-devel", "r-forge"))) {
+    stop("Unknown repository: ", repos)
+  }
+  pkg <- gsub("(.*):(.*)", "\\2", pkg)
+
+  if (git_version() < "1.8.0") {
+    stop("Your version of git is too old: ", git_version())
+  } else if (git_version() < "1.9.0") {
+    warning("Your version of git is old and may fail the SVN-to-Git export: ", git_version())
+  }
+
+  ## Build authors map
+  authors_local <- readLines(git_svn_authorsfile())
+  authors_known <- git_svn_authors_known()
+  authors <- git_svn_authors(c(authors_known, authors_local))
+  mcat("svn-to-git map of authors:\n")
+  mprint(authors)
+
+  ## URL for the SVN repository
+  if (repos == "bioc-devel") {
+    svnURL <- sprintf("https://hedgehog.fhcrc.org/bioconductor/trunk/madman/Rpacks/%s", pkg)
+  } else if (repos == "r-forge") {
+    project <- gsub("(.*)/(.*)", "\\1", pkg)
+    package <- gsub("(.*)/(.*)", "\\2", pkg)
+    mprintf("R-Forge project: %s\n", project)
+    mprintf("R-Forge package: %s\n", package)
+    svnURL <- sprintf("svn://svn.r-forge.r-project.org/svnroot/%s/pkg/%s",
+                                                         project, package)
+  }
+  mprintf("SVN URL (translated): %s\n", svnURL)
+  mprintf("R package name: %s\n", package)
+
+
+  ## Download complete SVN history
+  git_svn(url=svnURL, path=package, authors=authors)
+} # rpkg_svn2git()
+
+uri <- findURIs()
+if (length(uri) != 1L) {
+  # Display usage
+  msg <- "svn2git v1.0.0 by Henrik Bengtsson"
+  msg <- c(msg, "")
+  msg <- c(msg, "Usage:")
+  msg <- c(msg, "  source('http://callr.org/svn2git#<uri>')")
+  msg <- c(msg, "")
+  msg <- c(msg, "Example:")
+  msg <- c(msg, "  source('http://callr.org/svn2git#r-forge:r-dots/R.menu')")
+  message(paste(msg, collapse="\n"))
+} else {
+  # Install package
+  msg <- "Exporting SVN repository to local Git repository:"
+  message(msg, " ", sQuote(uri))
+  rpkg_svn2git(uri)
+}
+
+}) # local()
