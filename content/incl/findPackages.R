@@ -16,7 +16,7 @@ findPackages <- function() {
     flags <- gsub(pattern, "\\3", pkg)
     flags <- unlist(strsplit(flags, split="", fixed=TRUE))
 
-    if (regexpr("^[a-z]+://.+[.](tar[.]gz|tgz|zip)$", pkg) != -1) {
+    if (regexpr("^[a-z]+://.+[.](tar[.]gz|tgz|zip)", pkg) != -1) {
       # Install directly from URL (and force it)
       flags <- c(flags, "D", "!")
     } else if (regexpr("[^/]+[/][^/]+", pkg) != -1) {
