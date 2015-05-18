@@ -219,13 +219,22 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
     # on "Warning: unable to access index for repository ...".
     suppressWarnings({
       # Install all at once?
-      if (all(pkgsR$suggests == pkgsR$suggests[1])) {
+      oneByOne <- (length(pkgsR$suggests) == 1L) &&
+                   any(pkgsR$suggests != pkgsR$suggests[1])
+      if (!oneByOne) {
         deps <- if (pkgsR$suggests[1]) TRUE else NA
-        install.packages(pkgsR$name, dependencies=deps, quiet=quiet, ...)
-      } else {
+        res <- try(install.packages(pkgsR$name, dependencies=deps, quiet=quiet, ...))
+        ## Failed to install one or more of the packages?
+        ## Then retry to install them one-by-one
+        oneByOne <- !inherits(res, "try-error")
+        if (oneByOne) {
+          message('At least one of the packages failed to install. Will fall back to install each of them one by one: ', paste(sQuote(pkgsR$name), collapse=", "))
+        }
+      }
+      if (oneByOne) {
         mapply(pkgsR$name, pkgsR$suggests, FUN=function(pkg, deps) {
           deps <- if (deps) TRUE else NA
-          install.packages(pkg, dependencies=deps, quiet=quiet, ...)
+          try(install.packages(pkg, dependencies=deps, quiet=quiet, ...))
         })
       }
     })
@@ -355,14 +364,14 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
     # For some reason withCallingHandlers() fails to capture messages
     # on "Warning: unable to access index for repository ...".
     suppressWarnings({
-      update.packages(..., quiet=quiet, ask=update_ask)
+      try(update.packages(..., quiet=quiet, ask=update_ask))
     })
   } else {
     # Always try to update the requested packages, unless installed above
     pkgsTT <- setdiff(pkgsT$name, c(pkgsR$name, pkgsU$name, pkgsG$name))
     if (length(pkgsTT) > 0L) {
       suppressWarnings({
-        update.packages(oldPkgs=pkgsTT, ..., quiet=quiet, ask=update_ask)
+        try(update.packages(oldPkgs=pkgsTT, ..., quiet=quiet, ask=update_ask))
       })
     }
   }
