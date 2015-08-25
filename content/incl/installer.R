@@ -109,6 +109,9 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
   dups <- (nzchar(names) & duplicated(names))
   repos <- repos[!dups]
 
+  # FIXME: Drop non-functional 'R-Forge[https]' /2015-08-25
+  repos <- repos[!grepl("R-Forge[https]", names(repos), fixed=TRUE)]
+
   # Set temporarily
   oopts <- options(repos=repos)
   on.exit(options(oopts), add=TRUE)

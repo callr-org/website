@@ -93,6 +93,7 @@ captureOutput <- function (expr, file = NULL, append = FALSE, collapse = NULL,
         res <- eval({
             capture.output(expr, file = file, append = append)
         }, envir = envir, enclos = envir)
+        return(invisible(res))
     }
     res <- unlist(strsplit(res, split = "\n", fixed = TRUE), 
         use.names = FALSE)

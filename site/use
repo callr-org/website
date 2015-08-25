@@ -95,6 +95,7 @@ captureOutput <- function (expr, file = NULL, append = FALSE, collapse = NULL,
         res <- eval({
             capture.output(expr, file = file, append = append)
         }, envir = envir, enclos = envir)
+        return(invisible(res))
     }
     res <- unlist(strsplit(res, split = "\n", fixed = TRUE), 
         use.names = FALSE)
@@ -367,6 +368,9 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
   names <- names(repos)
   dups <- (nzchar(names) & duplicated(names))
   repos <- repos[!dups]
+
+  # FIXME: Drop non-functional 'R-Forge[https]' /2015-08-25
+  repos <- repos[!grepl("R-Forge[https]", names(repos), fixed=TRUE)]
 
   # Set temporarily
   oopts <- options(repos=repos)
