@@ -776,8 +776,8 @@ findPackages <- function() {
   })
   flags <- lapply(pkgs, FUN=`[[`, "flags")
   pkgs <- sapply(pkgs, FUN=`[[`, "name")
-  pkgnames <- gsub(".*/", "", pkgs)
-  pkgnames <- gsub("[@#].*", "", pkgnames)
+  pkgnames <- gsub("[@#].*", "", pkgs)
+  pkgnames <- gsub(".*/", "", pkgnames)
 
   ## Example: 'R.cache_0.10.0.tar.gz'
   pkgnames <- gsub("_[0-9]+.*", "", pkgnames)
