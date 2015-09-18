@@ -489,7 +489,7 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
         res <- try(install.packages(pkgsR$name, dependencies=deps, quiet=quiet, ...))
         ## Failed to install one or more of the packages?
         ## Then retry to install them one-by-one
-        oneByOne <- !inherits(res, "try-error")
+        oneByOne <- (nrow(pkgsR) > 1L) && !inherits(res, "try-error")
         if (oneByOne) {
           message('At least one of the packages failed to install. Will fall back to install each of them one by one: ', paste(sQuote(pkgsR$name), collapse=", "))
         }
