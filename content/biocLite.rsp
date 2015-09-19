@@ -1,4 +1,4 @@
-<%@string script="rfile"%>
+<%@string script="biocLite"%>
 <%@include file="incl/header.R.rsp"%>
 local({
 <%@include file="incl/utils.R.rsp"%>
