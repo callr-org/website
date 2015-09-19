@@ -40,18 +40,13 @@
 
 <h2>Building dynamic reports</h2>
 
-<h2>knitr</h2>
-
 <pre><code class="r"># knitr R Markdown to HTML (local file)
 source(&#39;http://callr.org/render#001-minimal.Rmd&#39;)
 
 # knitr R Markdown to HTML
 source(&#39;http://callr.org/render#https://raw.github.com/yihui/knitr-examples/master/001-minimal.Rmd&#39;)
-</code></pre>
 
-<h2>RSP</h2>
-
-<pre><code class="r"># RSP to Markdown to HTML (local file)
+# RSP to Markdown to HTML (local file)
 source(&#39;http://callr.org/render#LoremIpsum.md.rsp&#39;)
 
 # RSP to Markdown to HTML
@@ -59,33 +54,27 @@ source(&#39;http://callr.org/render#https://raw.github.com/HenrikBengtsson/R.rsp
 
 # RSP to Markdown to HTML (GitHub gist)
 source(&#39;http://callr.org/render#gist://HenrikBengtsson/4c1d81ef18129563c79b/matrixNA-wrong-way.md.rsp&#39;)
-</code></pre>
 
-<h2>Sweave</h2>
-
-<pre><code class="r"># Sweave to PDF
+# Sweave to PDF
 source(&#39;http://callr.org/render#https://raw.github.com/HenrikBengtsson/R.rsp/master/inst/rsp_LoremIpsum/LoremIpsum.Rnw&#39;)
-</code></pre>
 
-<h2>LaTeX (static)</h2>
-
-<pre><code class="r"># TeX to PDF
+# TeX to PDF
 source(&#39;http://callr.org/render#https://raw.githubusercontent.com/HenrikBengtsson/R.rsp/master/vignettes/R_packages-LaTeX_vignettes.ltx&#39;)
-</code></pre>
 
-<h2>Markdown (static)</h2>
-
-<pre><code class="r"># Markdown to HTML (local)
+# Markdown to HTML (local file)
 source(&#39;http://callr.org/render#LoremIpsum.md&#39;)
-</code></pre>
 
-<h2>Asciidoc (static)</h2>
-
-<pre><code class="r"># Asciidoc to PDF
+# Asciidoc to PDF
 source(&#39;http://callr.org/render#https://raw.github.com/HenrikBengtsson/R.rsp/master/inst/rsp_LoremIpsum/LoremIpsum.asciidoc.txt&#39;)
 </code></pre>
 
-<p>All required packages will automatically be installed, if missing.</p>
+<p>The <code>render</code> command:</p>
+
+<ul>
+<li>Works in a freshly installed R session.</li>
+<li>Requires no prior package installations.</li>
+<li>All required packages will be installed automatically.</li>
+</ul>
 
 
 </div>

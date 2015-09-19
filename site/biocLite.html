@@ -40,24 +40,21 @@
 
 <h2>Installing Bioconductor packages</h2>
 
-<pre><code class="r">source(&#39;http://callr.org/biocLite#limma&#39;)
+<pre><code class="r">source(&#39;http://callr.org/biocLite#limma,edgeR&#39;)
 </code></pre>
 
 <p>This is a one-line call identical to</p>
 
 <pre><code class="r">source(&#39;http://bioconductor.org/biocLite.R&#39;)
-biocLite(&#39;limma&#39;)
+biocLite(c(&#39;limma&#39;, &#39;edgeR&#39;))
 </code></pre>
 
-<p>You can install multiple packages by separating them with commas, e.g.</p>
-
-<pre><code class="r">source(&#39;http://callr.org/biocLite#limma,edgeR&#39;)
-</code></pre>
-
-<h3>Comments</h3>
+<p>The <code>biocLite</code> command:</p>
 
 <ul>
-<li>The <code>biocLite</code> will always install requested packages regardless whether they are already installed or not.  To avoid this, use the <a href="install.html"><code>install</code></a> command.</li>
+<li>Works in a freshly installed R session.</li>
+<li>Requires no prior package installations.</li>
+<li>Will always install requested packages regardless whether they are already installed or not.  To avoid this, use the <a href="install.html"><code>install</code></a> command.</li>
 </ul>
 
 
