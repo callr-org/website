@@ -1,0 +1,418 @@
+######################################################################
+# See http://callr.org/render.html for help.
+#
+# This script is part of the http://callr.org suite.
+# It was dynamically generated from a set of RSP templates,
+# which are available at https://github.com/callr-org/.
+#
+# License: GPL (>= 2.1)
+# Copyright: Henrik Bengtsson
+######################################################################
+
+
+local({
+
+localenv <- environment()
+
+trim <- function (object, ...) 
+{
+    s <- sub("^[\t\n\f\r ]*", "", as.character(object))
+    s <- sub("[\t\n\f\r ]*$", "", s)
+    s
+}
+
+
+
+isPackageInstalled <- function (package, ...) 
+{
+    suppressWarnings({
+        paths <- sapply(package, FUN = function(p) system.file(package = p))
+    })
+    (paths != "")
+}
+
+findSourceTraceback <- function (...) 
+{
+    argsToFind <- names(formals(source))
+    srcfileList <- list()
+    for (ff in sys.nframe():0) {
+        env <- sys.frame(ff)
+        exist <- sapply(argsToFind, FUN = exists, envir = env, 
+            inherits = FALSE)
+        if (!all(exist)) {
+            next
+        }
+        srcfile <- get("srcfile", envir = env, inherits = FALSE)
+        if (!is.null(srcfile)) {
+            if (!is.function(srcfile)) {
+                srcfileList <- c(srcfileList, list(srcfile))
+            }
+        }
+    }
+    pathnames <- sapply(srcfileList, FUN = function(srcfile) {
+        if (inherits(srcfile, "srcfile")) {
+            pathname <- srcfile$filename
+        }
+        else if (is.environment(srcfile)) {
+            pathname <- srcfile$filename
+        }
+        else if (is.character(srcfile)) {
+            pathname <- srcfile
+        }
+        else {
+            pathname <- NA_character_
+            warning("Unknown class of 'srcfile': ", class(srcfile)[1L])
+        }
+        pathname
+    })
+    names(srcfileList) <- pathnames
+    srcfileList
+}
+
+
+captureOutput <- function (expr, file = NULL, append = FALSE, collapse = NULL, 
+    envir = parent.frame()) 
+{
+    if (is.null(file)) 
+        file <- raw(0L)
+    if (identical(file, character(0L))) 
+        file <- NULL
+    if (is.raw(file)) {
+        res <- eval({
+            file <- rawConnection(raw(0L), open = "w")
+            on.exit({
+                if (!is.null(file)) close(file)
+            })
+            capture.output(expr, file = file)
+            res <- rawConnectionValue(file)
+            close(file)
+            file <- NULL
+            res <- rawToChar(res)
+            res
+        }, envir = envir, enclos = envir)
+    }
+    else {
+        res <- eval({
+            capture.output(expr, file = file, append = append)
+        }, envir = envir, enclos = envir)
+        return(invisible(res))
+    }
+    res <- unlist(strsplit(res, split = "\n", fixed = TRUE), 
+        use.names = FALSE)
+    if (!is.null(collapse)) 
+        res <- paste(res, collapse = collapse)
+    res
+}
+mprint <- function (..., appendLF = FALSE) 
+{
+    bfr <- captureOutput(print(...), envir = parent.frame())
+    bfr <- paste(c(bfr, ""), collapse = "\n")
+    message(bfr, appendLF = appendLF)
+}
+mcat <- function (..., appendLF = FALSE) 
+{
+    bfr <- captureOutput(cat(...), envir = parent.frame())
+    bfr <- paste(c(bfr, ""), collapse = "\n")
+    message(bfr, appendLF = appendLF)
+}
+mstr <- function (..., appendLF = FALSE) 
+{
+    bfr <- captureOutput(str(...), envir = parent.frame())
+    bfr <- paste(c(bfr, ""), collapse = "\n")
+    message(bfr, appendLF = appendLF)
+}
+mprintf <- function (..., appendLF = FALSE) 
+{
+    bfr <- sprintf(...)
+    message(bfr, appendLF = appendLF)
+}
+
+withVerbose <- function(expr, ..., envir=parent.frame()) {
+  if (hasParameter("verbose", TRUE)) {
+    eval(expr, envir=envir)
+  }
+  invisible()
+} # withVerbose()
+
+
+hasParameter <- function(name, value=NULL) {
+  params <- getOption("parameters", NULL)
+  if (!is.element(name, names(params))) return(FALSE)
+  if (is.null(value)) return(TRUE)
+
+  # Check if parameter has the requested value
+  param <- params[[name]]
+
+  # For logical values, allow for T, F, 1 and 0.
+  if (mode(value) == "logical") {
+    param <- switch(as.character(param), T=TRUE, F=FALSE, "1"=TRUE, "0"=FALSE, as.logical(param))
+  }
+
+  (param == value)
+} # hasParameter()
+
+
+hasUrlProtocol <- function (pathname, ...) 
+{
+    pattern <- "^([abcdefghijklmnopqrstuvwxyz]+)(://.*)"
+    (regexpr(pattern, pathname) != -1)
+}
+
+
+# Parse URL
+splitUrl <- function(url, ...) {
+  stopifnot(length(url) == 1L)
+  if (!hasUrlProtocol(url)) stop("Not a valid URL: ", url)
+
+  # Get the protocol
+  pattern <- "^([abcdefghijklmnopqrstuvwxyz]+)(://)(.*)"
+  protocol <- gsub(pattern, "\\1", url, ignore.case=TRUE)
+  tail <- gsub(pattern, "\\3", url, ignore.case=TRUE)
+
+  # Allocate results
+  res <- list(
+    url=url,
+    protocol=protocol,
+    hierarchical_part=NULL,
+    host=NULL, path=NULL,
+    query=NULL, query_parsed=NULL,
+    fragment=NULL
+  )
+
+  # hierarchical_part
+  pos <- regexpr("[?#]", tail)
+  if (pos != -1L) {
+    sep <- substring(tail, first=pos, last=pos)
+    res$hierarchical_part <- substring(tail, first=1L, last=pos-1L)
+    tail <- substring(tail, first=pos+1L)
+  } else {
+    res$hierarchical_part <- tail
+    tail <- ""
+    sep <- NULL
+  }
+
+  # Get the host and the path
+  parts <- strsplit(res$hierarchical_part, split="/", fixed=TRUE)[[1L]]
+  if (length(parts) > 0L) {
+    res$host <- parts[1L]
+    res$path <- paste(parts[-1L], collapse="/")
+  } else {
+    res$host <- NULL
+    res$path <- res$hierarchical_part
+  }
+
+  # Done?
+  if (nchar(tail) == 0L) {
+    return(res)
+  }
+
+  if (sep == "?") {
+    # Get the query then fragments
+    res$query <- gsub("#.*", "", tail)
+    res$fragment <- gsub(".*#", "", tail)
+  } else if (sep == "#") {
+    res$fragment <- gsub("[?].*", "", tail)
+    res$query <- gsub(".*[?]", "", tail)
+  }
+
+  # Parse query
+  if (length(res$query) > 0L) {
+    parts <- strsplit(res$query, split="&", fixed=TRUE)[[1L]]
+    if (length(parts) > 0L) {
+      parts <- strsplit(parts, split="=", fixed=TRUE)
+      names <- unlist(lapply(parts, FUN=function(x) x[1L]), use.names=FALSE)
+      args <- lapply(parts, FUN=function(x) paste(x[-1L], collapse="="))
+      names(args) <- names
+      res$query_parsed <- args
+    }
+  }
+
+  res
+} # splitUrl()
+
+parseUrl <- function() {
+  # Don't assume 'utils' is attached
+  URLdecode <- utils::URLdecode
+
+  url <- getOption("debug_url")
+  if (is.null(url)) {
+    # Find all URL calls
+    urls <- names(findSourceTraceback())
+    pattern <- "^([abcdefghijklmnopqrstuvwxyz]+)(://)(.*)"
+    urls <- grep(pattern, urls, value=TRUE)
+
+    # Nothing found?
+    if (length(urls) == 0L) return(list())
+
+    # Use the most first one
+    url <- urls[1L]
+  }
+
+  # Parse URL
+  res <- splitUrl(url)
+
+  # Set URL parameters globally
+  options(parameters=res$query_parsed)
+
+  res
+} # parseUrl()
+
+
+requireDevtools <- function() {
+  if (!isPackageInstalled("devtools")) {
+    message("Need to install 'devtools' and friends first ...")
+    message("  This make take a few minutes, but is a one time thing.")
+    utils::install.packages("devtools", quiet=quiet, ...)
+    message("Need to install 'devtools' and friends first ... DONE")
+  }
+} # requireDevtools()
+
+
+requireRCurl <- function() {
+  ## WORKAROUND: RCurl 1.96.0 is buggy / HB 2015-05-08
+  ## Don't install from Omegahat, because it provides
+  ## RCurl 1.96.0 (1.95-4.6 is on CRAN), which despite
+  ## installing properly, causes httr::GET() -> ... ->
+  ## RCurl::curlPerform() to core dump R.
+  if (isPackageInstalled("RCurl")) {
+    v <- utils::packageVersion("RCurl")
+    if (v >= "1.96.0") {
+      repos <- base::getOption("repos")["CRAN"]
+      if (is.null(repos) || is.na(repos)) repos <- "@CRAN@"
+      message(sprintf(printf("** WORKAROUND: Detected RCurl %s, which indirectly causes devtools::install_github() to core dump R. This faulty version was probably installed from Omegahat and not CRAN. Reinstalling RCurl from CRAN ...", v)))
+      utils::install.packages("RCurl", repos=repos)
+    }
+  }
+} # requireRCurl()
+
+
+requireRrsp <- function() {
+  if (!isPackageInstalled("R.rsp")) {
+    message("Need to install 'R.rsp' and friends first ...")
+    message("  This make take a few minutes, but is a one time thing.")
+    source("http://callr.org/install#R.rsp")
+    message("Need to install 'R.rsp' and friends first ... DONE")
+  }
+}
+
+
+appendToHistory <- function(cmds, verbose=FALSE) {
+  tf <- tempfile(pattern=".Rhistory-")
+  on.exit({
+    try(unlink(tf))
+  })
+
+  success <- tryCatch({
+    savehistory(tf)
+    hist <- readLines(tf)
+    cmdAll <- paste(cmds, collapse="; ")
+    hist <- c(hist, cmdAll)
+    writeLines(con=tf, hist)
+    loadhistory(tf)
+    TRUE
+  }, error = function(ex) { FALSE })
+
+  if (success && verbose) {
+    msg <- c("The following have been appended to the command history:",
+             "", cmds, "")
+    msg <- paste(msg, collapse="\n")
+    message(msg)
+  }
+} # appendToHistory()
+gist_to_url <- function(url) {
+  pattern <- "^gist://(.*)/(.*)/(.*)"
+  if (regexpr(pattern, url) == -1L) return(url)
+  gsub(pattern, "https://gist.githubusercontent.com/\\1/\\2/raw/\\3", url)
+}
+
+url_to_gist <- function(url) {
+  pattern <- "^https://gist.githubusercontent.com/(.*)/(.*)/raw/(.*)"
+  if (regexpr(pattern, url) == -1L) return(url)
+  gsub(pattern, "gist://\\1/\\2/\\3", url)
+}
+
+findURIs <- function() {
+  # Don't assume 'utils' is attached
+  URLdecode <- utils::URLdecode
+
+  url <- parseUrl()
+  uris <- url$fragment
+
+  # Nothing to do?
+  if (length(uris) == 0L) {
+    return(character(0L))
+  }
+
+  uris <- URLdecode(uris)
+  uris <- unlist(strsplit(uris, split="[,#]"))
+
+  # Translater gist:// URIs
+  uris <- sapply(uris, FUN=gist_to_url)
+
+  uris
+} # findURIs()
+local_rfile <- function(uris, drop=TRUE) {
+  requireRrsp()
+  outputs <- list()
+  for (ii in seq_along(uris)) {
+    uri <- uris[ii]
+    message(sprintf("Rendering %d of %d ...", ii, length(uris)))
+    message("URI: ", uri)
+    pp <- R.rsp::rfile(uri)
+    mprint(pp)
+    outputs[[uri]] <- pp
+    message(sprintf("Rendering %d of %d ... DONE", ii, length(uris)))
+  }
+
+  if (drop && length(outputs) == 1L) {
+    outputs <- outputs[[1]]
+  }
+
+  outputs
+}
+
+local_rsource <- function(uris) {
+  requireRrsp()
+  for (uri in uris) {
+    R.rsp::rsource(uri)
+  }
+}
+
+uris <- findURIs()
+nuris <- length(uris)
+if (nuris == 0L) {
+  # Display usage
+  msg <- "RSP compiler v1.0.3 by Henrik Bengtsson"
+  msg <- c(msg, "")
+  msg <- c(msg, "Usage:")
+  msg <- c(msg, "  source('http://callr.org/render#<uri>')")
+  msg <- c(msg, "")
+  msg <- c(msg, "Example:")
+  msg <- c(msg, "  source('http://callr.org/render#report.md.rsp')")
+  message(paste(msg, collapse="\n"))
+} else {
+  # Install package
+  if (nuris == 1L) {
+    msg <- "Compiling RSP document:"
+  } else {
+    msg <- "Compiling RSP documents:"
+  }
+  message(msg, " ", paste(sQuote(uris), collapse=", "))
+  cmds <- NULL
+  for (uri in uris) {
+    output <- local_rfile(uri)
+    ext <- tools::file_ext(output)
+    cmd <- sprintf("%s <- R.rsp::rfile('%s')", ext, uri)
+    assign(ext, output, envir=globalenv())
+    cmds <- c(cmds, cmd)
+    
+    message(sprintf("\nTo open this %s document, type !%s and press ENTER.\n", toupper(ext), ext))
+  }
+  appendToHistory(cmds, verbose=FALSE)
+}
+
+
+withVerbose({
+  mprint(sessionInfo())
+})
+}) # local()
