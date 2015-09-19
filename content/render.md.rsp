@@ -2,20 +2,20 @@
 
 ## knitr
 ```r
-# knitr R Markdown to HTML (local)
+# knitr R Markdown to HTML (local file)
 source('http://callr.org/render#001-minimal.Rmd')
 
-# knitr R Markdown to HTML (online)
+# knitr R Markdown to HTML
 source('http://callr.org/render#https://raw.github.com/yihui/knitr-examples/master/001-minimal.Rmd')
 ```
 
 
 ## RSP
 ```r
-# RSP to Markdown to HTML (local)
+# RSP to Markdown to HTML (local file)
 source('http://callr.org/render#LoremIpsum.md.rsp')
 
-# RSP to Markdown to HTML (online)
+# RSP to Markdown to HTML
 source('http://callr.org/render#https://raw.github.com/HenrikBengtsson/R.rsp/master/inst/rsp_LoremIpsum/LoremIpsum.md.rsp')
 
 # RSP to Markdown to HTML (GitHub gist)
@@ -25,15 +25,15 @@ source('http://callr.org/render#gist://HenrikBengtsson/4c1d81ef18129563c79b/matr
 
 ## Sweave
 ```r
-# Sweave to PDF (online)
+# Sweave to PDF
 source('http://callr.org/render#https://raw.github.com/HenrikBengtsson/R.rsp/master/inst/rsp_LoremIpsum/LoremIpsum.Rnw')
 ```
 
 
 ## LaTeX (static)
 ```r
-# TeX to PDF (online)
-source('http://callr.org/render#https://raw.github.com/HenrikBengtsson/R.rsp/master/inst/rsp_LoremIpsum/LoremIpsum.tex')
+# TeX to PDF
+source('http://callr.org/render#https://raw.githubusercontent.com/HenrikBengtsson/R.rsp/master/vignettes/R_packages-LaTeX_vignettes.ltx')
 ```
 
 
@@ -46,7 +46,7 @@ source('http://callr.org/render#LoremIpsum.md')
 
 ## Asciidoc (static)
 ```r
-# Asciidoc to PDF (online)
+# Asciidoc to PDF
 source('http://callr.org/render#https://raw.github.com/HenrikBengtsson/R.rsp/master/inst/rsp_LoremIpsum/LoremIpsum.asciidoc.txt')
 ```
 
