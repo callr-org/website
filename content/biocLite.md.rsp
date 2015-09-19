@@ -14,3 +14,7 @@ You can install multiple packages by separating them with commas, e.g.
 ```r
 source('http://callr.org/biocLite#limma,edgeR')
 ```
+
+
+### Comments
+* The `biocLite` will always install requested packages regardless whether they are already installed or not.  To avoid this, use the [`install`](install.html) command.
