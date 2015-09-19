@@ -10,11 +10,21 @@ source('http://callr.org/install#limma')
 # From GitHub
 source('http://callr.org/install#rstudio/rmarkdown')
 source('http://callr.org/install#HenrikBengtsson/R.utils@develop')
-```
 
-All dependent packages will be installed.  If a requested package is already installed and up-to-date, it will not be reinstalled.  All installed packages will be updated.
-
-You can install multiple packages by separating them with commas, e.g.
-```r
+# Multiple packages from mixed sources
 source('http://callr.org/install#knitr,rstudio/rmarkdown')
 ```
+
+<%@ifdef name="front"%>
+All dependent packages will be installed.  If a requested package is already installed and up-to-date, it will not be reinstalled.  All installed packages will be updated.
+<%@else%>
+The `install` command:
+
+* Works in a freshly installed R session.
+* Requires no prior package installations.
+* All required packages will be installed automatically.
+* Updates old packages.
+* Avoids re-installation by skipping already existing versions.
+* Optional packages (e.g. `Suggests: ggplot2`) are not installed by default, but if they are also marked as recommended (e.g. `SuggestsNote: Recommended: ggplot2`) it will be installed. See [PSCBS](https://github.com/HenrikBengtsson/PSCBS/blob/master/DESCRIPTION#L19-L23) for an example. This is a callr.org-specific feature.
+
+<%@endif%>
