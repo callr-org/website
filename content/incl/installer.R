@@ -10,6 +10,7 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
   packageVersion <-  utils::packageVersion
   savehistory <- utils::savehistory
 
+
   knownRepos <- function() {
     p <- file.path(Sys.getenv("HOME"), ".R", "repositories")
     if (!file.exists(p)) p <- file.path(R.home("etc"), "repositories")
@@ -251,9 +252,8 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
   if (nrow(pkgsU) > 0L) {
     message("Installing packages from URLs:")
     suppressWarnings({
-      if (!isPackageInstalled("devtools")) {
-        install.packages("devtools", quiet=quiet, ...)
-      }
+      requireDevtools()
+
       # Install one by one
       for (kk in seq_len(nrow(pkgsU))) {
         pkg <- pkgsU[kk,]
@@ -271,24 +271,8 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
   if (nrow(pkgsG) > 0L) {
     message("Installing packages from GitHub:")
     suppressWarnings({
-      if (!isPackageInstalled("devtools")) {
-        install.packages("devtools", quiet=quiet, ...)
-      }
-
-      ## WORKAROUND: RCurl 1.96.0 is buggy / HB 2015-05-08
-      ## Don't install from Omegahat, because it provides
-      ## RCurl 1.96.0 (1.95-4.6 is on CRAN), which despite
-      ## installing properly, causes httr::GET() -> ... ->
-      ## RCurl::curlPerform() to core dump R.
-      if (isPackageInstalled("RCurl")) {
-        v <- packageVersion("RCurl")
-        if (v >= "1.96.0") {
-          repos <- getOption("repos")["CRAN"]
-          if (is.null(repos) || is.na(repos)) repos <- "@CRAN@"
-          mprintf("** WORKAROUND: Detected RCurl %s, which indirectly causes devtools::install_github() to core dump R. This faulty version was probably installed from Omegahat and not CRAN. Reinstalling RCurl from CRAN ...\n", v)
-          install.packages("RCurl", repos=repos)
-        }
-      }
+      requireDevtools()
+      requireRCurl()
 
       # Install one by one
       for (kk in seq_len(nrow(pkgsG))) {

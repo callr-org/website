@@ -1,12 +1,14 @@
 local_rfile <- function(uris, drop=TRUE) {
-  if (!isPackageInstalled("R.rsp")) {
-    source("<%=urlroot%>/install#R.rsp")
-  }
+  requireRrsp()
   outputs <- list()
-  for (uri in uris) {
+  for (ii in seq_along(uris)) {
+    uri <- uris[ii]
+    message(sprintf("Rendering %d of %d ...", ii, length(uris)))
+    message("URI: ", uri)
     pp <- R.rsp::rfile(uri)
     mprint(pp)
     outputs[[uri]] <- pp
+    message(sprintf("Rendering %d of %d ... DONE", ii, length(uris)))
   }
 
   if (drop && length(outputs) == 1L) {
@@ -17,9 +19,7 @@ local_rfile <- function(uris, drop=TRUE) {
 }
 
 local_rsource <- function(uris) {
-  if (!isPackageInstalled("R.rsp")) {
-    source("<%=urlroot%>/install#R.rsp")
-  }
+  requireRrsp()
   for (uri in uris) {
     R.rsp::rsource(uri)
   }
