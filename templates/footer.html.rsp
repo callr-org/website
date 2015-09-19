@@ -9,5 +9,6 @@
 %>
 <a href="<%@string name="page"%>">script</a> | 
 <% } %>
-<a href="http://github.com/callr-org/">GitHub</a>
+<a href="http://github.com/callr-org/website/issues">feedback</a> |
+<a href="http://github.com/callr-org/website/">GitHub</a>
 </p>
