@@ -278,7 +278,7 @@ requireRCurl <- function() {
     if (v >= "1.96.0") {
       repos <- base::getOption("repos")["CRAN"]
       if (is.null(repos) || is.na(repos)) repos <- "@CRAN@"
-      message(sprintf(printf("** WORKAROUND: Detected RCurl %s, which indirectly causes devtools::install_github() to core dump R. This faulty version was probably installed from Omegahat and not CRAN. Reinstalling RCurl from CRAN ...", v)))
+      message(sprintf("** WORKAROUND: Detected RCurl %s, which indirectly causes devtools::install_github() to core dump R. This faulty version was probably installed from Omegahat and not CRAN. Reinstalling RCurl from CRAN ...", v))
       utils::install.packages("RCurl", repos=repos)
     }
   }
