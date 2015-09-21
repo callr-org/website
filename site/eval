@@ -267,6 +267,10 @@ requireDevtools <- function() {
 
 
 requireRCurl <- function() {
+  requireDevtools()
+  v <- utils::packageVersion("devtools")
+  if (v >= "1.9.1") return()
+
   ## WORKAROUND: RCurl 1.96.0 is buggy / HB 2015-05-08
   ## Don't install from Omegahat, because it provides
   ## RCurl 1.96.0 (1.95-4.6 is on CRAN), which despite
