@@ -257,7 +257,7 @@ parseUrl <- function() {
 } # parseUrl()
 
 
-requireDevtools <- function(quiet=TRUE, ...) {
+requireDevtools <- function(quiet=FALSE, ...) {
   if (!isPackageInstalled("devtools")) {
     message("Need to install 'devtools' and friends first ...")
     message("  This may take a few minutes, but is a one time thing.")
@@ -267,7 +267,7 @@ requireDevtools <- function(quiet=TRUE, ...) {
 } # requireDevtools()
 
 
-requireRCurl <- function() {
+requireRCurl <- function(quiet=FALSE, ...) {
   requireDevtools()
   v <- utils::packageVersion("devtools")
   if (v >= "1.9.1") return()
@@ -283,7 +283,7 @@ requireRCurl <- function() {
       repos <- base::getOption("repos")["CRAN"]
       if (is.null(repos) || is.na(repos)) repos <- "@CRAN@"
       message(sprintf("** WORKAROUND: Detected RCurl %s, which indirectly causes devtools::install_github() to core dump R. This faulty version was probably installed from Omegahat and not CRAN. Reinstalling RCurl from CRAN ...", v))
-      utils::install.packages("RCurl", repos=repos)
+      utils::install.packages("RCurl", repos=repos, quiet=quiet)
     }
   }
 } # requireRCurl()
