@@ -597,7 +597,7 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
     withVerbose({
     })
     field <- "SuggestsNote"
-    recs <- pkgDeps(deps, field=field)
+    recs <- pkgDeps(deps, fields=field)
     if (length(recs) > 0L) {
       recs <- recs[!isPackageInstalled(recs)]
       if (length(recs) > 0L) {
@@ -624,7 +624,7 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
       })
       recs <- character(0L)
       for (pkg in deps) {
-        pkgsR <- pkgDeps(pkg, field="SuggestsNote", recursive=TRUE)
+        pkgsR <- pkgDeps(pkg, fields="SuggestsNote", recursive=TRUE)
         recs <- c(recs, pkgsR)
       }
       ## AD HOC: Drop anything that doesn't look like a package name

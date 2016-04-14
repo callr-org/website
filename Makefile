@@ -18,5 +18,5 @@ site/%.html: content/%.md.rsp content/incl/* templates/*.rsp
 
 beta:
 	rsync -avvz --perms --chmod=ugo+rx --progress site/ $(CALLR_WEBSITE_PATH)/beta/
-publish:
+deploy:
 	rsync -avvz --perms --chmod=ugo+rx --progress site/ $(CALLR_WEBSITE_PATH)/
