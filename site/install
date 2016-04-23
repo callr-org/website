@@ -438,6 +438,11 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
   # FIXME: Drop non-functional 'R-Forge[https]' /2015-08-25
   repos <- repos[!grepl("R-Forge[https]", names(repos), fixed=TRUE)]
 
+  # FALLBACK: Iff CRAN is not set, use predefined repository
+  if (identical(repos[["CRAN"]], "@CRAN@")) {
+     repos[["CRAN"]] <- "https://cloud.r-project.org"
+  }
+
   # Set temporarily
   oopts <- options(repos=repos)
   on.exit(options(oopts), add=TRUE)
