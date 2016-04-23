@@ -311,6 +311,8 @@ findPackages <- function() {
   pkgs <- unlist(strsplit(pkgs, split="[,#]"))
 
   pkgs <- lapply(pkgs, FUN=function(pkg) {
+    ## Drop version specifications, e.g. foo (>= 3.2)
+    pkg <- gsub("[(](<|<=|==|>=|>) *[0-9.-]+[)]", "", pkg)
     pkg <- trim(pkg)
     pattern <- "([^[]*)[ ]*([[](.*)[]])?"
     name <- trim(gsub(pattern, "\\1", pkg))
