@@ -20,6 +20,18 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
     repos <- a$URL
     names(repos) <- rownames(a)
 
+    ## Bioconductor
+    ## Note: R tries to keep track of the current Bioconductor version
+    ## internally.  However, it is hard coded in the R version installed,
+    ## which means that it is only updated when the R version is updated.
+    ## This means that unless you're running an updated R patched version,
+    ## you're stuck with the Bioconductor version that was at the time
+    ## of the R stable release.
+    isPatched <- grepl("Patched", R.version$status, ignore.case = TRUE)
+    if (!isPatched) {
+      ## FIXME: Look up Bioc version for current version of R.
+    }
+    
     ## WORKAROUND: RCurl 1.96.0 is buggy / HB 2015-05-08
     ## Don't install from Omegahat, because it provides
     ## RCurl 1.96.0 (1.95-4.6 is on CRAN), which despite
