@@ -257,6 +257,16 @@ parseUrl <- function() {
 } # parseUrl()
 
 
+requireRemotes <- function(quiet=FALSE, ...) {
+  if (!isPackageInstalled("remotes")) {
+    message("Need to install 'remotes' and friends first ...")
+    message("  This may take a few moments, but is a one time thing.")
+    utils::install.packages("remotes", quiet=quiet, ...)
+    message("Need to install 'remotes' and friends first ... DONE")
+  }
+} # requireRemotes()
+
+
 requireDevtools <- function(quiet=FALSE, ...) {
   if (!isPackageInstalled("devtools")) {
     message("Need to install 'devtools' and friends first ...")
@@ -310,7 +320,7 @@ findPackages <- function() {
 
   ## Drop quotes of various kinds
   pkgs <- gsub("['\"`]", "", pkgs)
-  pkgs <- gsub("[\xe2\x80\x98\xe2\x80\x99]", "", pkgs)
+  pkgs <- gsub("[\xe2\x80\x98\xe2\x80\x99]", "", pkgs) ## Smart quotes
 
   ## Drop version specifications, e.g. foo (>= 3.2)
   pkgs <- gsub("[(](<|<=|==|>=|>) *[0-9.-]+[)]", "", pkgs)

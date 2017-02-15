@@ -27,6 +27,7 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
     ## This means that unless you're running an updated R patched version,
     ## you're stuck with the Bioconductor version that was at the time
     ## of the R stable release.
+    
     isPatched <- grepl("Patched", R.version$status, ignore.case = TRUE)
     if (!isPatched) {
       ## FIXME: Look up Bioc version for current version of R.
@@ -269,13 +270,13 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
   if (nrow(pkgsU) > 0L) {
     message("Installing packages from URLs:")
     suppressWarnings({
-      requireDevtools()
+      requireRemotes()
 
       # Install one by one
       for (kk in seq_len(nrow(pkgsU))) {
         pkg <- pkgsU[kk,]
         url <- pkg$fullname
-        devtools::install_url(url)
+        remotes::install_url(url)
       }
     })
   }
@@ -288,13 +289,12 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
   if (nrow(pkgsG) > 0L) {
     message("Installing packages from GitHub:")
     suppressWarnings({
-      requireDevtools()
-      requireRCurl()
+      requireRemotes()
 
       # Install one by one
       for (kk in seq_len(nrow(pkgsG))) {
         pkg <- pkgsG[kk,]
-        devtools::install_github(pkg$fullname)
+        remotes::install_github(pkg$fullname)
       }
     })
   }
