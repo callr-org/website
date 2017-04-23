@@ -383,7 +383,7 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
       suppressWarnings({
         res <- unlist(lapply(names, FUN=function(pkg) {
           deps <- try(packageDescription(pkg, fields=fields, drop=FALSE))
-          if (is.na(deps)) return(character(0L))
+          if (!is.list(deps)) return(character(0L))
 
           depsS <- deps$SuggestsNote
           deps$SuggestsNote <- NULL
