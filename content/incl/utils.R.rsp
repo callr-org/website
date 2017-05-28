@@ -4,7 +4,7 @@ path <- dirname("<%@meta name="source"%>")
 source(file.path(path, "printCode.R"))
 %>
 
-localenv <- environment()
+localenv <- base::environment()
 
 <%----------------------------------------------------------------
  Importing from R.oo
@@ -16,7 +16,10 @@ trim <- <% printCode("trim", class="default", envir="R.oo") %>
  Importing from R.utils
  ----------------------------------------------------------------%>
 isPackageInstalled <- <% printCode("isPackageInstalled", class="default", envir="R.utils") %>
-findSourceTraceback <- <% printCode("findSourceTraceback", class="default", envir="R.utils") %>
+
+findSourceTraceback <- <% printCode("findSourceTraceback", class="default", envir="R.utils", tweak = function(output) {
+  output <- gsub("source", "base::source", output, fixed = TRUE)
+}) %>
 
 <% for (name in c("captureOutput", "mprint", "mcat", "mstr", "mprintf")) { %>
 <%=name%> <- <% printCode(name, envir="R.utils") %>
@@ -25,14 +28,14 @@ findSourceTraceback <- <% printCode("findSourceTraceback", class="default", envi
 
 withVerbose <- function(expr, ..., envir=parent.frame()) {
   if (hasParameter("verbose", TRUE)) {
-    eval(expr, envir=envir)
+    base::eval(expr, envir=envir)
   }
   invisible()
 } # withVerbose()
 
 
 hasParameter <- function(name, value=NULL) {
-  params <- getOption("parameters", NULL)
+  params <- base::getOption("parameters", NULL)
   if (!is.element(name, names(params))) return(FALSE)
   if (is.null(value)) return(TRUE)
 
@@ -57,12 +60,12 @@ parseUrl <- function() {
   # Don't assume 'utils' is attached
   URLdecode <- utils::URLdecode
 
-  url <- getOption("debug_url")
+  url <- base::getOption("debug_url")
   if (is.null(url)) {
     # Find all URL calls
     urls <- names(findSourceTraceback())
     pattern <- "^([abcdefghijklmnopqrstuvwxyz]+)(://)(.*)"
-    urls <- grep(pattern, urls, value=TRUE)
+    urls <- base::grep(pattern, urls, value=TRUE)
 
     # Nothing found?
     if (length(urls) == 0L) return(list())
@@ -75,7 +78,7 @@ parseUrl <- function() {
   res <- splitUrl(url)
 
   # Set URL parameters globally
-  options(parameters=res$query_parsed)
+  base::options(parameters=res$query_parsed)
 
   res
 } # parseUrl()
@@ -127,7 +130,7 @@ requireRrsp <- function() {
   if (!isPackageInstalled("R.rsp")) {
     message("Need to install 'R.rsp' and friends first ...")
     message("  This make take a few minutes, but is a one time thing.")
-    source("<%=urlroot%>/install#R.rsp")
+    base::source("<%=urlroot%>/install#R.rsp")
     message("Need to install 'R.rsp' and friends first ... DONE")
   }
 }
