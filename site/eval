@@ -41,7 +41,14 @@ findSourceTraceback <- function (...)
         if (!all(exist)) {
             next
         }
-        srcfile <- get("srcfile", envir = env, inherits = FALSE)
+        if (exists("srcfile", envir = env, inherits = FALSE)) {
+            srcfile <- get("srcfile", envir = env, inherits = FALSE)
+        }
+        else {
+            srcfile <- get("srcfile", envir = env, inherits = TRUE)
+            if (!inherits(srcfile, "srcfile")) 
+                srcfile <- NULL
+        }
         if (!is.null(srcfile)) {
             if (!is.function(srcfile)) {
                 srcfileList <- c(srcfileList, list(srcfile))

@@ -17,9 +17,7 @@ trim <- <% printCode("trim", class="default", envir="R.oo") %>
  ----------------------------------------------------------------%>
 isPackageInstalled <- <% printCode("isPackageInstalled", class="default", envir="R.utils") %>
 
-findSourceTraceback <- <% printCode("findSourceTraceback", class="default", envir="R.utils", tweak = function(output) {
-  output <- gsub("source", "base::source", output, fixed = TRUE)
-}) %>
+findSourceTraceback <- <% printCode("findSourceTraceback", class="default", envir="R.utils") %>
 
 <% for (name in c("captureOutput", "mprint", "mcat", "mstr", "mprintf")) { %>
 <%=name%> <- <% printCode(name, envir="R.utils") %>
