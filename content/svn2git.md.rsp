@@ -3,10 +3,10 @@
 Export remote R-Forge or Bioc-devel Subversion (SVN) repository to a local Git repository.
 ```r
 # R-Forge
-source('http://callr.org/svn2git#r-forge:r-dots/R.cache')
+source('https://callr.org/svn2git#r-forge:r-dots/R.cache')
 
 # Bioconductor devel
-source('http://callr.org/svn2git#bioc-devel:aroma.light')
+source('https://callr.org/svn2git#bioc-devel:aroma.light')
 ```
 
 The Git repository will be created in a separate subdirectory of the current working directory.
@@ -15,7 +15,7 @@ If you see error _"Author: henkebenke not defined in .svn2git_authorsfile.txt fi
 
 
 ### SVN-to-Git authors file
-SVN commits are attributed to an author by a `user` name (e.g. 'joe'), whereas in Git they are attributed by an `email` address (e.g. 'john<span>@</span>example.com') and the full `name` (e.g. 'John Surfer').  In order for the SVN-to-Git export to work, you need to provide a `.gitauthors` file (you can put it in either the working directory or the home directory) providing the mapping for _all SVN authors_ in the [following format](http://git-scm.com/docs/git-svn), e.g.
+SVN commits are attributed to an author by a `user` name (e.g. 'joe'), whereas in Git they are attributed by an `email` address (e.g. 'john<span>@</span>example.com') and the full `name` (e.g. 'John Surfer').  In order for the SVN-to-Git export to work, you need to provide a `.gitauthors` file (you can put it in either the working directory or the home directory) providing the mapping for _all SVN authors_ in the [following format](https://git-scm.com/docs/git-svn), e.g.
 ```
 joe = John Surfer <john@example.com>
 sara = Sara Glider <sara@user.callr.org>

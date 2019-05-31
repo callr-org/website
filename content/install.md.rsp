@@ -2,17 +2,17 @@
 
 ```r
 # From CRAN
-source('http://callr.org/install#knitr')
+source('https://callr.org/install#knitr')
 
 # From Bioconductor
-source('http://callr.org/install#limma')
+source('https://callr.org/install#limma')
 
 # From GitHub
-source('http://callr.org/install#rstudio/rmarkdown')
-source('http://callr.org/install#HenrikBengtsson/R.utils@develop')
+source('https://callr.org/install#rstudio/rmarkdown')
+source('https://callr.org/install#HenrikBengtsson/R.utils@develop')
 
 # Multiple packages from mixed sources
-source('http://callr.org/install#knitr,rstudio/rmarkdown')
+source('https://callr.org/install#knitr,rstudio/rmarkdown')
 ```
 
 <%@ifdef name="front"%>

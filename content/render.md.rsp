@@ -2,31 +2,31 @@
 
 ```r
 # knitr R Markdown to HTML (from local file)
-source('http://callr.org/render#001-minimal.Rmd')
+source('https://callr.org/render#001-minimal.Rmd')
 
 # knitr R Markdown to HTML
-source('http://callr.org/render#https://raw.github.com/yihui/knitr-examples/master/001-minimal.Rmd')
+source('https://callr.org/render#https://raw.github.com/yihui/knitr-examples/master/001-minimal.Rmd')
 
 # RSP to Markdown to HTML (from local file)
-source('http://callr.org/render#LoremIpsum.md.rsp')
+source('https://callr.org/render#LoremIpsum.md.rsp')
 
 # RSP to Markdown to HTML
-source('http://callr.org/render#https://raw.github.com/HenrikBengtsson/R.rsp/master/inst/rsp_LoremIpsum/LoremIpsum.md.rsp')
+source('https://callr.org/render#https://raw.github.com/HenrikBengtsson/R.rsp/master/inst/rsp_LoremIpsum/LoremIpsum.md.rsp')
 
 # RSP to Markdown to HTML (from GitHub gist)
-source('http://callr.org/render#gist://HenrikBengtsson/4c1d81ef18129563c79b/matrixNA-wrong-way.md.rsp')
+source('https://callr.org/render#gist://HenrikBengtsson/4c1d81ef18129563c79b/matrixNA-wrong-way.md.rsp')
 
 # Sweave to PDF
-source('http://callr.org/render#https://raw.github.com/HenrikBengtsson/R.rsp/master/inst/rsp_LoremIpsum/LoremIpsum.Rnw')
+source('https://callr.org/render#https://raw.github.com/HenrikBengtsson/R.rsp/master/inst/rsp_LoremIpsum/LoremIpsum.Rnw')
 
 # TeX to PDF
-source('http://callr.org/render#https://raw.githubusercontent.com/HenrikBengtsson/R.rsp/master/vignettes/R_packages-LaTeX_vignettes.ltx')
+source('https://callr.org/render#https://raw.githubusercontent.com/HenrikBengtsson/R.rsp/master/vignettes/R_packages-LaTeX_vignettes.ltx')
 
 # Markdown to HTML (from local file)
-source('http://callr.org/render#LoremIpsum.md')
+source('https://callr.org/render#LoremIpsum.md')
 
 # Asciidoc to PDF
-source('http://callr.org/render#https://raw.github.com/HenrikBengtsson/R.rsp/master/inst/rsp_LoremIpsum/LoremIpsum.asciidoc.txt')
+source('https://callr.org/render#https://raw.github.com/HenrikBengtsson/R.rsp/master/inst/rsp_LoremIpsum/LoremIpsum.asciidoc.txt')
 ```
 
 The `render` command:

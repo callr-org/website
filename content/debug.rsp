@@ -26,7 +26,7 @@ local({
   cat("\n* Option 'pkgType'\n")
   cat(sprintf("Option pkgType=%s\n", sQuote(pkgType)))
 
-  repositories <- "http://braju.com/R"
+  repositories <- "https://braju.com/R"
   for (repos in repositories) {
     contriburl <- contrib.url(repos, pkgType)
     mprintf("* Available packages at %s\n", sQuote(contriburl))

@@ -37,7 +37,7 @@ if (length(code) == 0L) {
     withVerbose(mprint(pkgs))
     if (!isPackageInstalled("R.utils")) {
       local({
-        source("http://callr.org/install#R.utils", local=TRUE)
+        source("https://callr.org/install#R.utils", local=TRUE)
       })
     }
     # Attach packages.  Install, iff missing

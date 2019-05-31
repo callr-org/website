@@ -1,12 +1,12 @@
 ## Installing Bioconductor packages
 
 ```r
-source('http://callr.org/biocLite#limma,edgeR')
+source('https://callr.org/biocLite#limma,edgeR')
 ```
 
 This is a one-line call identical to
 ```r
-source('http://bioconductor.org/biocLite.R')
+source('https://bioconductor.org/biocLite.R')
 biocLite(c('limma', 'edgeR'))
 ```
 

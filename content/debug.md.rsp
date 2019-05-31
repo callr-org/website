@@ -1,5 +1,5 @@
 ## Debug
 
 ```r
-source('http://callr.org/debug#args1,args2')
+source('https://callr.org/debug#args1,args2')
 ```
