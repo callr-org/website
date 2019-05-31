@@ -16,7 +16,6 @@ pathTo <- function(path="") {
   <%@string label="${label}: ${page}"%>
 <%@endif%>
 <%@meta title="${label}"%>
-<%@string jquery_url="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -65,7 +64,7 @@ markdownToHTML(text=md, fragment.only=TRUE)
 </div>
 <%--- Bootstrap core JavaScript ---%>
 <%--- Placed at the end of the document so the pages load faster ---%>
-<script src="<%@string name="jquery_url"%>/jquery.min.js"></script>
+<script src="<%=pathTo('assets/js/jquery.min.js')%>"></script>
 <script src="<%=pathTo('assets/js/bootstrap.min.js')%>"></script>
 <%@include file="google-analytics.html.rsp"%>
 <%-- Include any extras that the page wish to add to the end --%>
