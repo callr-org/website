@@ -12,7 +12,7 @@ site/assets/ico/favicon.png: templates/assets/ico/favicon.R
 
 site/%.html: content/%.md.rsp content/incl/* templates/*.rsp
 	@echo "Building $(*F)"
-	Rscript -e R.rsp::rfile templates/{{page}}.html.rsp --page=$(*F)
+	Rscript -e R.rsp::rfile "templates/{{page}}.html.rsp" --page=$(*F)
 	mv -f $(@F) $@
 	if test -f $(*F); then mv $(*F) site/$*; fi
 
