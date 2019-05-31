@@ -2,7 +2,7 @@ CALLR_WEBSITE_PATH=callr.org:public_html/callr.org
 
 all: pages site/assets
 
-pages: site/index.html site/install.html site/biocLite.html site/render.html site/rsource.html site/eval.html site/use.html site/svn2git.html site/debug.html
+pages: site/index.html site/install.html site/biocLite.html site/render.html site/rsource.html site/eval.html site/use.html site/debug.html
 
 site/assets: assets/* site/assets/ico/favicon.png
 	rsync -av assets/ site/assets/

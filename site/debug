@@ -10,7 +10,7 @@
 ######################################################################
 
 
-localenv <- environment()
+localenv <- base::environment()
 
 trim <- function (object, ...) 
 {
@@ -29,9 +29,10 @@ isPackageInstalled <- function (package, ...)
     (paths != "")
 }
 
+
 findSourceTraceback <- function (...) 
 {
-    argsToFind <- names(formals(source))
+    argsToFind <- names(formals(base::source))
     srcfileList <- list()
     for (ff in sys.nframe():0) {
         env <- sys.frame(ff)
@@ -40,7 +41,14 @@ findSourceTraceback <- function (...)
         if (!all(exist)) {
             next
         }
-        srcfile <- get("srcfile", envir = env, inherits = FALSE)
+        if (exists("srcfile", envir = env, inherits = FALSE)) {
+            srcfile <- get("srcfile", envir = env, inherits = FALSE)
+        }
+        else {
+            srcfile <- get("srcfile", envir = env, inherits = TRUE)
+            if (!inherits(srcfile, "srcfile")) 
+                srcfile <- NULL
+        }
         if (!is.null(srcfile)) {
             if (!is.function(srcfile)) {
                 srcfileList <- c(srcfileList, list(srcfile))
@@ -127,14 +135,14 @@ mprintf <- function (..., appendLF = FALSE)
 
 withVerbose <- function(expr, ..., envir=parent.frame()) {
   if (hasParameter("verbose", TRUE)) {
-    eval(expr, envir=envir)
+    base::eval(expr, envir=envir)
   }
   invisible()
 } # withVerbose()
 
 
 hasParameter <- function(name, value=NULL) {
-  params <- getOption("parameters", NULL)
+  params <- base::getOption("parameters", NULL)
   if (!is.element(name, names(params))) return(FALSE)
   if (is.null(value)) return(TRUE)
 
@@ -232,12 +240,12 @@ parseUrl <- function() {
   # Don't assume 'utils' is attached
   URLdecode <- utils::URLdecode
 
-  url <- getOption("debug_url")
+  url <- base::getOption("debug_url")
   if (is.null(url)) {
     # Find all URL calls
     urls <- names(findSourceTraceback())
     pattern <- "^([abcdefghijklmnopqrstuvwxyz]+)(://)(.*)"
-    urls <- grep(pattern, urls, value=TRUE)
+    urls <- base::grep(pattern, urls, value=TRUE)
 
     # Nothing found?
     if (length(urls) == 0L) return(list())
@@ -250,10 +258,20 @@ parseUrl <- function() {
   res <- splitUrl(url)
 
   # Set URL parameters globally
-  options(parameters=res$query_parsed)
+  base::options(parameters=res$query_parsed)
 
   res
 } # parseUrl()
+
+
+requireRemotes <- function(quiet=FALSE, ...) {
+  if (!isPackageInstalled("remotes")) {
+    message("Need to install 'remotes' and friends first ...")
+    message("  This may take a few moments, but is a one time thing.")
+    utils::install.packages("remotes", quiet=quiet, ...)
+    message("Need to install 'remotes' and friends first ... DONE")
+  }
+} # requireRemotes()
 
 
 requireDevtools <- function(quiet=FALSE, ...) {
@@ -292,7 +310,7 @@ requireRrsp <- function() {
   if (!isPackageInstalled("R.rsp")) {
     message("Need to install 'R.rsp' and friends first ...")
     message("  This make take a few minutes, but is a one time thing.")
-    source("http://callr.org/install#R.rsp")
+    base::source("http://callr.org/install#R.rsp")
     message("Need to install 'R.rsp' and friends first ... DONE")
   }
 }
