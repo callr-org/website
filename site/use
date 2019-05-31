@@ -1,7 +1,7 @@
 ######################################################################
-# See http://callr.org/use.html for help.
+# See https://callr.org/use.html for help.
 #
-# This script is part of the http://callr.org suite.
+# This script is part of the https://callr.org suite.
 # It was dynamically generated from a set of RSP templates,
 # which are available at https://github.com/callr-org/.
 #
@@ -312,7 +312,7 @@ requireRrsp <- function() {
   if (!isPackageInstalled("R.rsp")) {
     message("Need to install 'R.rsp' and friends first ...")
     message("  This make take a few minutes, but is a one time thing.")
-    base::source("http://callr.org/install#R.rsp")
+    base::source("https://callr.org/install#R.rsp")
     message("Need to install 'R.rsp' and friends first ... DONE")
   }
 }
@@ -436,7 +436,7 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
   repos <- c(repos, knownRepos())
 
   # Append other known repositories, iff missing
-  repos <- c(repos, "AROMA"="http://braju.com/R")
+  repos <- c(repos, "AROMA"="https://braju.com/R")
 
   # Keep only unique ones
   names <- names(repos)
@@ -841,10 +841,10 @@ if (nrow(pkgs) == 0L) {
   msg <- "R package user v1.0.2 by Henrik Bengtsson"
   msg <- c(msg, "")
   msg <- c(msg, "Usage:")
-  msg <- c(msg, "  source('http://callr.org/use#<package>')")
+  msg <- c(msg, "  source('https://callr.org/use#<package>')")
   msg <- c(msg, "")
   msg <- c(msg, "Example:")
-  msg <- c(msg, "  source('http://callr.org/use#aroma.affymetrix')")
+  msg <- c(msg, "  source('https://callr.org/use#aroma.affymetrix')")
   message(paste(msg, collapse="\n"))
 } else {
   # Install package

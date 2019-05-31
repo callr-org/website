@@ -1,7 +1,7 @@
 ######################################################################
-# See http://callr.org/render.html for help.
+# See https://callr.org/render.html for help.
 #
-# This script is part of the http://callr.org suite.
+# This script is part of the https://callr.org suite.
 # It was dynamically generated from a set of RSP templates,
 # which are available at https://github.com/callr-org/.
 #
@@ -312,7 +312,7 @@ requireRrsp <- function() {
   if (!isPackageInstalled("R.rsp")) {
     message("Need to install 'R.rsp' and friends first ...")
     message("  This make take a few minutes, but is a one time thing.")
-    base::source("http://callr.org/install#R.rsp")
+    base::source("https://callr.org/install#R.rsp")
     message("Need to install 'R.rsp' and friends first ... DONE")
   }
 }
@@ -407,10 +407,10 @@ if (nuris == 0L) {
   msg <- "RSP compiler v1.0.3 by Henrik Bengtsson"
   msg <- c(msg, "")
   msg <- c(msg, "Usage:")
-  msg <- c(msg, "  source('http://callr.org/render#<uri>')")
+  msg <- c(msg, "  source('https://callr.org/render#<uri>')")
   msg <- c(msg, "")
   msg <- c(msg, "Example:")
-  msg <- c(msg, "  source('http://callr.org/render#report.md.rsp')")
+  msg <- c(msg, "  source('https://callr.org/render#report.md.rsp')")
   message(paste(msg, collapse="\n"))
 } else {
   # Install package

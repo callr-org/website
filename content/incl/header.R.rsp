@@ -1,5 +1,5 @@
 <%
-urlroot <- "http://<%@string name="site_domain"%>"
+urlroot <- "https://<%@string name="site_domain"%>"
 script <- "<%@string name="script"%>"
 url <- paste(c(urlroot, script), collapse="/")
 %>

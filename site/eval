@@ -1,7 +1,7 @@
 ######################################################################
-# See http://callr.org/eval.html for help.
+# See https://callr.org/eval.html for help.
 #
-# This script is part of the http://callr.org suite.
+# This script is part of the https://callr.org suite.
 # It was dynamically generated from a set of RSP templates,
 # which are available at https://github.com/callr-org/.
 #
@@ -310,7 +310,7 @@ requireRrsp <- function() {
   if (!isPackageInstalled("R.rsp")) {
     message("Need to install 'R.rsp' and friends first ...")
     message("  This make take a few minutes, but is a one time thing.")
-    base::source("http://callr.org/install#R.rsp")
+    base::source("https://callr.org/install#R.rsp")
     message("Need to install 'R.rsp' and friends first ... DONE")
   }
 }
@@ -327,10 +327,10 @@ if (length(code) == 0L) {
   msg <- "callr.org/eval v1.0.0 by Henrik Bengtsson"
   msg <- c(msg, "")
   msg <- c(msg, "Usage:")
-  msg <- c(msg, "  source('http://callr.org/eval#<uri>')")
+  msg <- c(msg, "  source('https://callr.org/eval#<uri>')")
   msg <- c(msg, "")
   msg <- c(msg, "Example:")
-  msg <- c(msg, "  source('http://callr.org/eval#x=runif(1)')")
+  msg <- c(msg, "  source('https://callr.org/eval#x=runif(1)')")
   message(paste(msg, collapse="\n"))
 } else {
   withVerbose({

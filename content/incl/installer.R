@@ -116,7 +116,7 @@ installer <- function(pkgs=NULL, recursive=FALSE, update=FALSE, ...) {
   repos <- c(repos, knownRepos())
 
   # Append other known repositories, iff missing
-  repos <- c(repos, "AROMA"="http://braju.com/R")
+  repos <- c(repos, "AROMA"="https://braju.com/R")
 
   # Keep only unique ones
   names <- names(repos)

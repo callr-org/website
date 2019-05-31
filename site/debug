@@ -1,7 +1,7 @@
 ######################################################################
-# See http://callr.org/debug.html for help.
+# See https://callr.org/debug.html for help.
 #
-# This script is part of the http://callr.org suite.
+# This script is part of the https://callr.org suite.
 # It was dynamically generated from a set of RSP templates,
 # which are available at https://github.com/callr-org/.
 #
@@ -310,7 +310,7 @@ requireRrsp <- function() {
   if (!isPackageInstalled("R.rsp")) {
     message("Need to install 'R.rsp' and friends first ...")
     message("  This make take a few minutes, but is a one time thing.")
-    base::source("http://callr.org/install#R.rsp")
+    base::source("https://callr.org/install#R.rsp")
     message("Need to install 'R.rsp' and friends first ... DONE")
   }
 }
