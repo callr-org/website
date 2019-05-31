@@ -1,12 +1,11 @@
 #----------------------------------------------------------------
-# Travis-CI configuration for RSP site
+# Travis-CI configuration for R packages
 #
 # REFERENCES:
-# * Travis CI: https://travis-ci.org/
-# * r-travis: https://github.com/craigcitro/r-travis
-# * r-builder: https://github.com/metacran/r-builder
+# * Travis CI: https://docs.travis-ci.com/user/languages/r
+# * covr: https://github.com/jimhester/covr
 #
-# Validate your .travis.yml file at http://lint.travis-ci.org/
+# YAML validated using http://www.yamllint.com/
 #----------------------------------------------------------------
 language: c
 
@@ -35,7 +34,7 @@ before_install:
   - cp -R .ssh ~/
   - echo PKGR=$PKGR
   - if [ "$PKGR" == "./travis-tool.sh" ]; then
-      curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh;
+      curl -OL https://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh;
     elif [ "$PKGR" == "./pkg-build.sh" ]; then
       curl -OL https://raw.githubusercontent.com/metacran/r-builder/master/pkg-build.sh;
     fi
@@ -47,7 +46,7 @@ before_install:
 
 install:
 #  - $PKGR install_r markdown R.utils R.rsp
-#  - $PKGR run_script -e "R.utils::installPackages('http://braju.com/R/src/contrib/R.rsp_0.19.7.tar.gz')"
+#  - $PKGR run_script -e "R.utils::installPackages('https://braju.com/R/src/contrib/R.rsp_0.19.7.tar.gz')"
 
 script:
     - echo "Building site"
