@@ -16,7 +16,6 @@ pathTo <- function(path="") {
   <%@string label="${label}: ${page}"%>
 <%@endif%>
 <%@meta title="${label}"%>
-<%@string bootstrap_url="http://netdna.bootstrapcdn.com/bootstrap/3.2.0"%>
 <%@string jquery_url="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1"%>
 <!DOCTYPE html>
 <html lang="en">
@@ -28,7 +27,7 @@ pathTo <- function(path="") {
   <link rel="shortcut icon" href="<%=pathTo('assets/ico/favicon.png')%>">
   <title><%@meta name="title"%></title>
   <%-- Include the Bootstrap stylesheets --%>
-  <link href="<%@string name="bootstrap_url"%>/css/bootstrap.min.css" rel="stylesheet">
+  <link href="<%=pathTo('assets/css/bootstrap.min.css')%>" rel="stylesheet">
   <%-- Custom styles for this template --%>
   <link href="<%=pathTo('assets/css/navbar-fixed-top.css')%>" rel="stylesheet">
   <link href="<%=pathTo('assets/css/navbar-sticky-bottom.css')%>" rel="stylesheet">
@@ -67,7 +66,7 @@ markdownToHTML(text=md, fragment.only=TRUE)
 <%--- Bootstrap core JavaScript ---%>
 <%--- Placed at the end of the document so the pages load faster ---%>
 <script src="<%@string name="jquery_url"%>/jquery.min.js"></script>
-<script src="<%@string name="bootstrap_url"%>/js/bootstrap.min.js"></script>
+<script src="<%=pathTo('assets/js/bootstrap.min.js')%>"></script>
 <%@include file="google-analytics.html.rsp"%>
 <%-- Include any extras that the page wish to add to the end --%>
 <%@if test="exists" name="footer_tail"%>
