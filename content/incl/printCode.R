@@ -5,9 +5,13 @@ printCode <- function(name, class=NULL, mode="function", envir=NULL, tweak=NULL,
   attributes(obj) <- NULL
   output <- capture.output(print(obj, useSource=TRUE))
   if (length(output) == 0) return(output)
-  idxs <- grep("<environment:", output, fixed=TRUE)
-  if (length(idxs) > 0L) output <- output[1:(idxs[1]-1)]
+  idxs <- grep("<(bytecode|environment):", output, fixed=FALSE)
+  if (length(idxs) > 0L) output <- output[-idxs]
   if (is.function(tweak)) output <- tweak(output)
+  res <- tryCatch(parse(text = output), error = function(e) e)
+  if (inherits(res, "error")) {
+    stop("printCode() produced R code that does not parse: ", conditionMessage(res))
+  }
   cat(output, sep="\n")
 } # printCode()
 
