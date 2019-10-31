@@ -1,7 +1,13 @@
 ## SVN-to-Git
 
+**IMPORTANT: In order for the below to work on _Windows_, you need to set `options(url.method = "libcurl")` first.**
+<br>
+
 Export remote R-Forge or Bioc-devel Subversion (SVN) repository to a local Git repository.
 ```r
+## Windows users only
+options(url.method = "libcurl")
+
 # R-Forge
 source('https://callr.org/svn2git#r-forge:r-dots/R.cache')
 

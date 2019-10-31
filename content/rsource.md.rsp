@@ -1,7 +1,13 @@
 ## Sourcing RSP reports
 
+**IMPORTANT: In order for the below to work on _Windows_, you need to set `options(url.method = "libcurl")` first.**
+<br>
+
 ## RSP
 ```r
+## Windows users only
+options(url.method = "libcurl")
+
 # RSP to Markdown (online)
 source('https://callr.org/rsource#https://raw.github.com/HenrikBengtsson/R.rsp/master/inst/rsp_LoremIpsum/LoremIpsum.md.rsp')
 ```

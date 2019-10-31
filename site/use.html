@@ -40,7 +40,13 @@
 
 <h2>Loading packages (with automatic installation)</h2>
 
-<pre><code class="r"># From CRAN
+<p><strong>IMPORTANT: In order for the below to work on <em>Windows</em>, you need to set <code>options(url.method = &quot;libcurl&quot;)</code> first.</strong>
+<br></p>
+
+<pre><code class="r">## Windows users only
+options(url.method = &quot;libcurl&quot;)
+
+# From CRAN
 source(&#39;https://callr.org/use#data.table&#39;)
 
 # From Bioconductor

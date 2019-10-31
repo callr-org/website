@@ -40,7 +40,13 @@
 
 <h2>Building dynamic reports</h2>
 
-<pre><code class="r"># knitr R Markdown to HTML (from local file)
+<p><strong>IMPORTANT: In order for the below to work on <em>Windows</em>, you need to set <code>options(url.method = &quot;libcurl&quot;)</code> first.</strong>
+<br></p>
+
+<pre><code class="r">## Windows users only
+options(url.method = &quot;libcurl&quot;)
+
+# knitr R Markdown to HTML (from local file)
 source(&#39;https://callr.org/render#001-minimal.Rmd&#39;)
 
 # knitr R Markdown to HTML

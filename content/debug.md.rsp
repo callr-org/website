@@ -1,5 +1,8 @@
 ## Debug
 
 ```r
+## Windows users only
+options(url.method = "libcurl")
+
 source('https://callr.org/debug#args1,args2')
 ```

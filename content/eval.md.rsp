@@ -1,6 +1,12 @@
 ## Evaluating R code
 
+**IMPORTANT: In order for the below to work on _Windows_, you need to set `options(url.method = "libcurl")` first.**
+<br>
+
 ```r
+## Windows users only
+options(url.method = "libcurl")
+
 source('https://callr.org/eval#x=rnorm(1000); !R.devices::toPNG("histogram", hist(x))')
 ```
 

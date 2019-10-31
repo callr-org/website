@@ -1,6 +1,12 @@
 ## Loading packages (with automatic installation)
 
+**IMPORTANT: In order for the below to work on _Windows_, you need to set `options(url.method = "libcurl")` first.**
+<br>
+
 ```r
+## Windows users only
+options(url.method = "libcurl")
+
 # From CRAN
 source('https://callr.org/use#data.table')
 

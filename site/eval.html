@@ -40,7 +40,13 @@
 
 <h2>Evaluating R code</h2>
 
-<pre><code class="r">source(&#39;https://callr.org/eval#x=rnorm(1000); !R.devices::toPNG(&quot;histogram&quot;, hist(x))&#39;)
+<p><strong>IMPORTANT: In order for the below to work on <em>Windows</em>, you need to set <code>options(url.method = &quot;libcurl&quot;)</code> first.</strong>
+<br></p>
+
+<pre><code class="r">## Windows users only
+options(url.method = &quot;libcurl&quot;)
+
+source(&#39;https://callr.org/eval#x=rnorm(1000); !R.devices::toPNG(&quot;histogram&quot;, hist(x))&#39;)
 </code></pre>
 
 <p>All required packages will automatically be installed, if missing.</p>

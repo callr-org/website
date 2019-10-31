@@ -1,6 +1,12 @@
 ## Building dynamic reports
 
+**IMPORTANT: In order for the below to work on _Windows_, you need to set `options(url.method = "libcurl")` first.**
+<br>
+
 ```r
+## Windows users only
+options(url.method = "libcurl")
+
 # knitr R Markdown to HTML (from local file)
 source('https://callr.org/render#001-minimal.Rmd')
 
