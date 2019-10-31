@@ -274,38 +274,6 @@ requireRemotes <- function(quiet=FALSE, ...) {
 } # requireRemotes()
 
 
-requireDevtools <- function(quiet=FALSE, ...) {
-  if (!isPackageInstalled("devtools")) {
-    message("Need to install 'devtools' and friends first ...")
-    message("  This may take a few minutes, but is a one time thing.")
-    utils::install.packages("devtools", quiet=quiet, ...)
-    message("Need to install 'devtools' and friends first ... DONE")
-  }
-} # requireDevtools()
-
-
-requireRCurl <- function(quiet=FALSE, ...) {
-  requireDevtools()
-  v <- utils::packageVersion("devtools")
-  if (v >= "1.9.1") return()
-
-  ## WORKAROUND: RCurl 1.96.0 is buggy / HB 2015-05-08
-  ## Don't install from Omegahat, because it provides
-  ## RCurl 1.96.0 (1.95-4.6 is on CRAN), which despite
-  ## installing properly, causes httr::GET() -> ... ->
-  ## RCurl::curlPerform() to core dump R.
-  if (isPackageInstalled("RCurl")) {
-    v <- utils::packageVersion("RCurl")
-    if (v >= "1.96.0") {
-      repos <- base::getOption("repos")["CRAN"]
-      if (is.null(repos) || is.na(repos)) repos <- "@CRAN@"
-      message(sprintf("** WORKAROUND: Detected RCurl %s, which indirectly causes devtools::install_github() to core dump R. This faulty version was probably installed from Omegahat and not CRAN. Reinstalling RCurl from CRAN ...", v))
-      utils::install.packages("RCurl", repos=repos, quiet=quiet)
-    }
-  }
-} # requireRCurl()
-
-
 requireRrsp <- function() {
   if (!isPackageInstalled("R.rsp")) {
     message("Need to install 'R.rsp' and friends first ...")
